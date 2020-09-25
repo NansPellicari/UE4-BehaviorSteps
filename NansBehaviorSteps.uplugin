@@ -5,9 +5,9 @@
 	"FriendlyName": "NansBehaviorSteps",
 	"Description": "",
 	"Category": "Misc",
-	"CreatedBy": "",
-	"CreatedByURL": "",
-	"DocsURL": "",
+	"CreatedBy": "Nans Pellicari <nans.pellicari@gmail.com>",
+	"CreatedByURL": "https://github.com/NansPellicari",
+	"DocsURL": "https://github.com/NansPellicari/UE4-BehaviorSteps",
 	"MarketplaceURL": "",
 	"SupportURL": "",
 	"CanContainContent": true,
@@ -24,10 +24,6 @@
 	"Plugins": [
 		{
 			"Name": "NansCoreHelpers",
-			"Enabled": true
-		},
-		{
-			"Name": "NansFactorsFactory",
 			"Enabled": true
 		},
 		{
