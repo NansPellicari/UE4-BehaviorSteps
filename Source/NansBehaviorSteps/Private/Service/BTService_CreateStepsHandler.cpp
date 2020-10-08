@@ -2,7 +2,7 @@
 
 #include "Service/BTService_CreateStepsHandler.h"
 
-#include "BTSteps.h"
+#include "BTStepsHandler.h"
 #include "BehaviorTree/BehaviorTreeTypes.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "NansUE4Utilities/public/Misc/ErrorUtils.h"
@@ -23,15 +23,15 @@ void UBTService_CreateStepsHandler::OnBecomeRelevant(UBehaviorTreeComponent& Own
 {
 	Super::OnBecomeRelevant(OwnerComp, NodeMemory);
 	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-	UBTSteps* BTSteps = Cast<UBTSteps>(BlackboardComp->GetValueAsObject(StepsKeyName));
+	UObject* BTSteps = BlackboardComp->GetValueAsObject(StepsKeyName);
 
-	if (BTSteps != nullptr)
+	if (BTSteps != nullptr && BTSteps->Implements<UBTStepsHandler>())
 	{
 		return;
 	}
 
-	BTSteps = NewObject<UBTSteps>(&OwnerComp, UBTSteps::StaticClass());
-	BlackboardComp->SetValueAsObject(StepsKeyName, BTSteps);
+	UObject* NewBTSteps = NewObject<UObject>(&OwnerComp, HandlerClass);
+	BlackboardComp->SetValueAsObject(StepsKeyName, NewBTSteps);
 }
 
 #undef LOCTEXT_NAMESPACE

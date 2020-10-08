@@ -22,13 +22,16 @@ UBTService_ClearSteps::UBTService_ClearSteps(const FObjectInitializer& ObjectIni
 void UBTService_ClearSteps::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	const UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-	UBTSteps* BTSteps = Cast<UBTSteps>(BlackboardComp->GetValueAsObject(StepsKeyName));
+	UObject* BTSteps = BlackboardComp->GetValueAsObject(StepsKeyName);
 
-	if (BTSteps != nullptr)
+	if (BTSteps != nullptr && BTSteps->Implements<UBTStepsHandler>())
 	{
-		BTSteps->Clear();
-		UE_LOG(LogBehaviorSteps, Warning, TEXT("%s ---- Cleaaaaar"), ANSI_TO_TCHAR(__FUNCTION__));
+		IBTStepsHandler::Execute_Clear(BTSteps);
+
+		return;
 	}
+
+	return;
 }
 
 FString UBTService_ClearSteps::GetStaticDescription() const

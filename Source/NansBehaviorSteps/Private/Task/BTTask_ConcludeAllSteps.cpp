@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Service/BTService_EndStep.h"
+#include "Task/BTTask_ConcludeAllSteps.h"
 
 #include "BTSteps.h"
 #include "BehaviorTree/BehaviorTreeTypes.h"
@@ -9,30 +9,34 @@
 
 #define LOCTEXT_NAMESPACE "BehaviorSteps"
 
-UBTService_EndStep::UBTService_EndStep(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+EBTNodeResult::Type UBTTask_ConcludeAllSteps::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	NodeName = "End Step";
-
-	bNotifyTick = false;
-	bTickIntervals = false;
-	bNotifyBecomeRelevant = true;
-	bNotifyCeaseRelevant = false;
-}
-
-void UBTService_EndStep::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
-{
-	Super::OnBecomeRelevant(OwnerComp, NodeMemory);
 	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
 	UObject* BTSteps = BlackboardComp->GetValueAsObject(StepsKeyName);
 
 	if (BTSteps != nullptr && BTSteps->Implements<UBTStepsHandler>())
 	{
-		IBTStepsHandler::Execute_FinishedCurrentStep(BTSteps);
-		return;
+		IBTStepsHandler::Execute_ConcludeAllSteps(BTSteps);
+		return EBTNodeResult::Succeeded;
 	}
 
 	EDITOR_ERROR(
 		"BehaviorSteps", LOCTEXT("StepsHandlerNotInitiated", "The steps handler can not be retrieved from the blackboard"));
+	return EBTNodeResult::Aborted;
 }
+
+FString UBTTask_ConcludeAllSteps::GetStaticDescription() const
+{
+	FString ReturnDesc;
+	return ReturnDesc;
+}
+
+#if WITH_EDITOR
+FName UBTTask_ConcludeAllSteps::GetNodeIconName() const
+{
+	// TODO import my own icon
+	return FName("BTEditor.Graph.BTNode.Task.Wait.Icon");
+}
+#endif	  // WITH_EDITOR
 
 #undef LOCTEXT_NAMESPACE

@@ -11,20 +11,27 @@
 EBTNodeResult::Type UBTTask_JumpTo::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	const UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-	UBTSteps* BTSteps = Cast<UBTSteps>(BlackboardComp->GetValueAsObject(StepsKeyName));
+	UObject* BTSteps = BlackboardComp->GetValueAsObject(StepsKeyName);
 
 	if (BTSteps == nullptr)
 	{
 		EDITOR_ERROR("BehaviorSteps", LOCTEXT("InvalidStepsKey", "Invalid key for Steps in "));
 		return EBTNodeResult::Aborted;
 	}
+
+	if (!BTSteps->Implements<UBTStepsHandler>())
+	{
+		EDITOR_ERROR("BehaviorSteps", LOCTEXT("InvalidStepsHandlerObject", "Step Handler must implements IBTStepsHandler!"));
+		return EBTNodeResult::Aborted;
+	}
+
 	if (StepToGo == 0)
 	{
 		EDITOR_ERROR("BehaviorSteps", LOCTEXT("InvalidStepNumber", "Invalid step number (need to be > 0) in "));
 		return EBTNodeResult::Aborted;
 	}
 
-	BTSteps->JumpTo(StepToGo);
+	IBTStepsHandler::Execute_JumpTo(BTSteps, StepToGo);
 
 	return EBTNodeResult::Succeeded;
 }

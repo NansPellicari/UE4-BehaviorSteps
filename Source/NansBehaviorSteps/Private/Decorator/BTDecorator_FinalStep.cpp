@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Decorator/BTDecorator_CreateAStep.h"
+#include "Decorator/BTDecorator_FinalStep.h"
 
 #include "BTStepsHandler.h"
 #include "BehaviorTree/BehaviorTreeTypes.h"
@@ -10,23 +10,17 @@
 
 #define LOCTEXT_NAMESPACE "BehaviorSteps"
 
-UBTDecorator_CreateAStep::UBTDecorator_CreateAStep(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+UBTDecorator_FinalStep::UBTDecorator_FinalStep(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	NodeName = "Step";
+	NodeName = "Final Step";
 
 	bNotifyTick = false;
 	bTickIntervals = false;
 }
 
-bool UBTDecorator_CreateAStep::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
+bool UBTDecorator_FinalStep::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
 	const UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-
-	if (Step == 0)
-	{
-		EDITOR_ERROR("BehaviorSteps", LOCTEXT("InvalidStepNumber", "Invalid step number (need to be > 0) in "));
-		return false;
-	}
 
 	UObject* BTSteps = BlackboardComp->GetValueAsObject(StepsKeyName);
 	if (BTSteps == nullptr)
@@ -40,16 +34,15 @@ bool UBTDecorator_CreateAStep::CalculateRawConditionValue(UBehaviorTreeComponent
 			"BehaviorSteps", LOCTEXT("InvalidStepsHandlerClass", "Invalid class for Steps, should implements IBTStepsHandler"));
 		return false;
 	}
-
-	return IBTStepsHandler::Execute_PlayStepAndMoveForward(BTSteps, Step);
+	int Step = -1;
+	return IBTStepsHandler::Execute_StepIsPlayable(BTSteps, Step, false);
 }
 
-FString UBTDecorator_CreateAStep::GetStaticDescription() const
+FString UBTDecorator_FinalStep::GetStaticDescription() const
 {
 	FString ReturnDesc;
 
-	ReturnDesc += "Step: " + FString::FromInt(Step);
-	ReturnDesc += "\nSteps Key Name: " + StepsKeyName.ToString();
+	ReturnDesc += "Steps Key Name: " + StepsKeyName.ToString();
 
 	return ReturnDesc;
 }

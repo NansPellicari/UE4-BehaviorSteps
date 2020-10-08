@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "BTStepsHandler.h"
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 
@@ -10,43 +11,29 @@
 /**
  */
 UCLASS(BlueprintType)
-class NANSBEHAVIORSTEPS_API UBTSteps : public UObject
+class NANSBEHAVIORSTEPS_API UBTSteps : public UObject, public IBTStepsHandler
 {
 	GENERATED_BODY()
 
 public:
 	UBTSteps();
-	~UBTSteps();
+	virtual void BeginDestroy() override;
 
-	UFUNCTION(BlueprintCallable, Category = "Step")
 	void AddFinishedStep(int32 Step);
 
-	UFUNCTION(BlueprintCallable, Category = "Step")
-	void FinishedCurrentStep();
-
-	UFUNCTION(BlueprintCallable, Category = "Step")
-	void RedoStep(int32 Step, bool FromLastPlay = false);
-
-	UFUNCTION(BlueprintCallable, Category = "Step")
-	void JumpTo(int32 Step);
-
-	UFUNCTION(BlueprintCallable, Category = "Step")
-	bool StepIsAlreadyDone(const int32 Step) const;
-
-	UFUNCTION(BlueprintCallable, Category = "Step")
-	void Clear();
-
-	UFUNCTION(BlueprintCallable, Category = "Step")
-	bool StepCanPlay(const int32& Step);
-
+	virtual int32 GetCurrentStep_Implementation() override;
+	virtual void ConcludeAllSteps_Implementation() override;
+	virtual void FinishedCurrentStep_Implementation() override;
+	virtual void RedoStep_Implementation(int32 Step, bool FromLastPlay = false) override;
+	virtual void JumpTo_Implementation(int32 Step) override;
+	virtual bool StepIsAlreadyDone_Implementation(const int32 Step) const override;
+	virtual void Clear_Implementation() override;
+	virtual bool StepCanPlay_Implementation(const int32& Step) override;
 	// If the step is the same as StepToGo, this method reset StepToGo to 0
-	UFUNCTION(BlueprintCallable, Category = "Step")
-	bool StepCanPlayAndReset(const int32& Step);
-
-	UFUNCTION(BlueprintCallable, Category = "Step")
-	bool PlayStepAndMoveForward(const int32& Step);
-
-	int32 GetStepToGo();
+	virtual bool StepCanPlayAndReset_Implementation(const int32& Step) override;
+	virtual bool PlayStepAndMoveForward_Implementation(const int32& Step) override;
+	virtual bool StepIsPlayable_Implementation(const int32& Step, bool ResetStepToGoIfPlay = true) override;
+	virtual int32 GetStepToGo_Implementation() override;
 
 protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Step")
@@ -57,7 +44,4 @@ protected:
 	bool bDebug = false;
 
 	TArray<int32> FinishedSteps;
-
-private:
-	bool IsStepPlayable(const int32& Step, const bool& ResetStepToGoIfPlay = true);
 };

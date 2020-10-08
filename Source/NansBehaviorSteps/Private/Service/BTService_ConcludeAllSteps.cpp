@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Service/BTService_EndStep.h"
+#include "Service/BTService_ConcludeAllSteps.h"
 
 #include "BTSteps.h"
 #include "BehaviorTree/BehaviorTreeTypes.h"
@@ -9,9 +9,9 @@
 
 #define LOCTEXT_NAMESPACE "BehaviorSteps"
 
-UBTService_EndStep::UBTService_EndStep(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+UBTService_ConcludeAllSteps::UBTService_ConcludeAllSteps(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	NodeName = "End Step";
+	NodeName = "Conclude All Steps";
 
 	bNotifyTick = false;
 	bTickIntervals = false;
@@ -19,7 +19,7 @@ UBTService_EndStep::UBTService_EndStep(const FObjectInitializer& ObjectInitializ
 	bNotifyCeaseRelevant = false;
 }
 
-void UBTService_EndStep::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+void UBTService_ConcludeAllSteps::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::OnBecomeRelevant(OwnerComp, NodeMemory);
 	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
@@ -27,7 +27,7 @@ void UBTService_EndStep::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uin
 
 	if (BTSteps != nullptr && BTSteps->Implements<UBTStepsHandler>())
 	{
-		IBTStepsHandler::Execute_FinishedCurrentStep(BTSteps);
+		IBTStepsHandler::Execute_ConcludeAllSteps(BTSteps);
 		return;
 	}
 

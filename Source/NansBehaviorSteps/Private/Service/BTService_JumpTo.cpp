@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Task/BTTask_RedoStep.h"
+#include "Service/BTService_JumpTo.h"
 
 #include "BTSteps.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -8,7 +8,17 @@
 
 #define LOCTEXT_NAMESPACE "BehaviorSteps"
 
-EBTNodeResult::Type UBTTask_RedoStep::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+UBTService_JumpTo::UBTService_JumpTo(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+{
+	NodeName = "Jump To";
+
+	bNotifyTick = false;
+	bTickIntervals = false;
+	bNotifyBecomeRelevant = true;
+	bNotifyCeaseRelevant = false;
+}
+
+void UBTService_JumpTo::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	const UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
 	UObject* BTSteps = BlackboardComp->GetValueAsObject(StepsKeyName);
@@ -16,27 +26,25 @@ EBTNodeResult::Type UBTTask_RedoStep::ExecuteTask(UBehaviorTreeComponent& OwnerC
 	if (BTSteps == nullptr)
 	{
 		EDITOR_ERROR("BehaviorSteps", LOCTEXT("InvalidStepsKey", "Invalid key for Steps in "));
-		return EBTNodeResult::Aborted;
+		return;
 	}
 
 	if (!BTSteps->Implements<UBTStepsHandler>())
 	{
 		EDITOR_ERROR("BehaviorSteps", LOCTEXT("InvalidStepsHandlerObject", "Step Handler must implements IBTStepsHandler!"));
-		return EBTNodeResult::Aborted;
+		return;
 	}
 
 	if (StepToGo == 0)
 	{
 		EDITOR_ERROR("BehaviorSteps", LOCTEXT("InvalidStepNumber", "Invalid step number (need to be > 0) in "));
-		return EBTNodeResult::Aborted;
+		return;
 	}
 
-	IBTStepsHandler::Execute_RedoStep(BTSteps, StepToGo, false);
-
-	return EBTNodeResult::Succeeded;
+	IBTStepsHandler::Execute_JumpTo(BTSteps, StepToGo);
 }
 
-FString UBTTask_RedoStep::GetStaticDescription() const
+FString UBTService_JumpTo::GetStaticDescription() const
 {
 	FString ReturnDesc;
 
@@ -52,7 +60,7 @@ FString UBTTask_RedoStep::GetStaticDescription() const
 }
 
 #if WITH_EDITOR
-FName UBTTask_RedoStep::GetNodeIconName() const
+FName UBTService_JumpTo::GetNodeIconName() const
 {
 	// TODO import my own icon
 	return FName("BTEditor.Graph.BTNode.Task.Wait.Icon");
