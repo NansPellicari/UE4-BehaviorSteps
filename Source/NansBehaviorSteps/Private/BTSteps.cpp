@@ -1,4 +1,15 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2020-present Nans Pellicari (nans.pellicari@gmail.com).
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "BTSteps.h"
 
@@ -50,6 +61,7 @@ void UBTSteps::AddFinishedStep(int32 Step)
 
 	FinishedSteps.Add(Step);
 }
+
 void UBTSteps::FinishedCurrentStep_Implementation()
 {
 	if (Execute_StepIsAlreadyDone(this, CurrentStep))
@@ -67,10 +79,13 @@ void UBTSteps::RedoStep_Implementation(int32 Step, bool FromLastPlay)
 
 	if (Index < 0)
 	{
-		EDITOR_ERROR("BehaviorSteps",
+		EDITOR_ERROR(
+			"BehaviorSteps",
 			FText::Format(
-				LOCTEXT("InvalidStepNumberToRedo", "The step Number {0} has not been played already, use JumpTo() method instead."),
-				Step));
+				LOCTEXT("InvalidStepNumberToRedo",
+					"The step Number {0} has not been played already, use JumpTo() method instead."),
+				Step)
+		);
 		return;
 	}
 

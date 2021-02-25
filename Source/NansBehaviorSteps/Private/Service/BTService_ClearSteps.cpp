@@ -1,10 +1,24 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2020-present Nans Pellicari (nans.pellicari@gmail.com).
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "Service/BTService_ClearSteps.h"
 
+
 #include "AIController.h"
 #include "BTSteps.h"
+#include "BTStepsContainer.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "GameFramework/Actor.h"
 #include "NansUE4Utilities/public/Misc/ErrorUtils.h"
 
 #define LOCTEXT_NAMESPACE "BehaviorSteps"
@@ -21,17 +35,22 @@ UBTService_ClearSteps::UBTService_ClearSteps(const FObjectInitializer& ObjectIni
 
 void UBTService_ClearSteps::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	const UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
+	Super::OnBecomeRelevant(OwnerComp, NodeMemory);
+
+	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
 	UObject* BTSteps = BlackboardComp->GetValueAsObject(StepsKeyName);
 
-	if (BTSteps != nullptr && BTSteps->Implements<UBTStepsHandler>())
+	if (IsValid(BTSteps) && BTSteps->Implements<UBTStepsHandler>())
 	{
 		IBTStepsHandler::Execute_Clear(BTSteps);
-
-		return;
+		AActor* OwnerActor = OwnerComp.GetAIOwner()->GetPawn<AActor>();
+		if (OwnerActor->Implements<UBTStepsContainer>())
+		{
+			IBTStepsContainer* OwnerStepsAware = Cast<IBTStepsContainer>(OwnerActor);
+			OwnerStepsAware->RemoveBTSteps();
+		}
+		BlackboardComp->ClearValue(StepsKeyName);
 	}
-
-	return;
 }
 
 FString UBTService_ClearSteps::GetStaticDescription() const

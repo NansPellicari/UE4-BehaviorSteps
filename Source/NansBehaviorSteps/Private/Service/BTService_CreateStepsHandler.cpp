@@ -1,15 +1,29 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2020-present Nans Pellicari (nans.pellicari@gmail.com).
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "Service/BTService_CreateStepsHandler.h"
 
+#include "AIController.h"
+#include "BTStepsContainer.h"
 #include "BTStepsHandler.h"
-#include "BehaviorTree/BehaviorTreeTypes.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "NansUE4Utilities/public/Misc/ErrorUtils.h"
 
 #define LOCTEXT_NAMESPACE "BehaviorSteps"
 
-UBTService_CreateStepsHandler::UBTService_CreateStepsHandler(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+UBTService_CreateStepsHandler::UBTService_CreateStepsHandler(const FObjectInitializer& ObjectInitializer) : Super(
+	ObjectInitializer
+)
 {
 	NodeName = "Create Steps Handler";
 
@@ -25,12 +39,26 @@ void UBTService_CreateStepsHandler::OnBecomeRelevant(UBehaviorTreeComponent& Own
 	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
 	UObject* BTSteps = BlackboardComp->GetValueAsObject(StepsKeyName);
 
-	if (BTSteps != nullptr && BTSteps->Implements<UBTStepsHandler>())
+	if (IsValid(BTSteps) && BTSteps->Implements<UBTStepsHandler>())
 	{
 		return;
 	}
 
-	UObject* NewBTSteps = NewObject<UObject>(&OwnerComp, HandlerClass);
+	AActor* OwnerActor = OwnerComp.GetAIOwner()->GetPawn<AActor>();
+	if (!OwnerActor->Implements<UBTStepsContainer>())
+	{
+		EDITOR_ERROR(
+			"BehaviorSteps",
+			LOCTEXT("OwnerIsNotStepsHandlerAware", "The owner of the behavior tree should implements IBTStepsContainer")
+		);
+		return;
+	}
+	IBTStepsContainer* OwnerStepsAware = Cast<IBTStepsContainer>(OwnerActor);
+	UObject* NewBTSteps = NewObject<UObject>(OwnerActor, HandlerClass);
+	TScriptInterface<IBTStepsHandler> StepsHandler;
+	StepsHandler.SetObject(NewBTSteps);
+	StepsHandler.SetInterface(Cast<IBTStepsHandler>(NewBTSteps));
+	OwnerStepsAware->SetBTSteps(StepsHandler);
 	BlackboardComp->SetValueAsObject(StepsKeyName, NewBTSteps);
 }
 
