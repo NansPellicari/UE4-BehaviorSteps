@@ -51,17 +51,6 @@ int32 UBTSteps::GetStepToGo_Implementation()
 	return StepToGo;
 }
 
-void UBTSteps::AddFinishedStep(int32 Step)
-{
-	if (Execute_StepIsAlreadyDone(this, Step))
-	{
-		if (bDebug) UE_LOG(LogTemp, Warning, TEXT("%s: Step %d already done"), *GetName(), Step);
-		return;
-	}
-
-	FinishedSteps.Add(Step);
-}
-
 void UBTSteps::FinishedCurrentStep_Implementation()
 {
 	if (Execute_StepIsAlreadyDone(this, CurrentStep))
@@ -70,7 +59,14 @@ void UBTSteps::FinishedCurrentStep_Implementation()
 		return;
 	}
 
+	StepToGo = CurrentStep + 1;
 	FinishedSteps.Add(CurrentStep);
+	CurrentStep = 0;
+}
+
+bool UBTSteps::StepIsPlaying_Implementation(const int32& Step)
+{
+	return Step == CurrentStep;
 }
 
 void UBTSteps::RedoStep_Implementation(int32 Step, bool FromLastPlay)
@@ -95,11 +91,13 @@ void UBTSteps::RedoStep_Implementation(int32 Step, bool FromLastPlay)
 		FinishedSteps.RemoveAt(i);
 	}
 	StepToGo = Step;
+	CurrentStep = 0;
 }
 
 void UBTSteps::JumpTo_Implementation(int32 Step)
 {
 	StepToGo = Step;
+	CurrentStep = 0;
 }
 
 bool UBTSteps::StepIsPlayable_Implementation(const int32& Step, bool ResetStepToGoIfPlay)
@@ -129,13 +127,13 @@ bool UBTSteps::StepCanPlayAndReset_Implementation(const int32& Step)
 	return Execute_StepIsPlayable(this, Step, true);
 }
 
-bool UBTSteps::PlayStepAndMoveForward_Implementation(const int32& Step)
+bool UBTSteps::PlayStep_Implementation(const int32& Step)
 {
 	bool bCanPlay = Execute_StepCanPlay(this, Step);
 	if (bCanPlay)
 	{
 		CurrentStep = Step;
-		StepToGo = CurrentStep + 1;
+		StepToGo = CurrentStep;
 	}
 	return bCanPlay;
 }
@@ -143,15 +141,12 @@ bool UBTSteps::PlayStepAndMoveForward_Implementation(const int32& Step)
 bool UBTSteps::StepCanPlay_Implementation(const int32& Step)
 {
 	bool bCanPlay = Execute_StepIsPlayable(this, Step, false);
-	if (bCanPlay)
-	{
-		++StepToGo;
-	}
 	return bCanPlay;
 }
 
 void UBTSteps::ConcludeAllSteps_Implementation()
 {
+	CurrentStep = 0;
 	StepToGo = -1;
 }
 

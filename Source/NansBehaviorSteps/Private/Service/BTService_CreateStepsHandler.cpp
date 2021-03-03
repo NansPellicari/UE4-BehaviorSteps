@@ -51,6 +51,7 @@ void UBTService_CreateStepsHandler::OnBecomeRelevant(UBehaviorTreeComponent& Own
 			"BehaviorSteps",
 			LOCTEXT("OwnerIsNotStepsHandlerAware", "The owner of the behavior tree should implements IBTStepsContainer")
 		);
+		OwnerComp.GetAIOwner()->GetBrainComponent()->StopLogic("Abort cause error");
 		return;
 	}
 	IBTStepsContainer* OwnerStepsAware = Cast<IBTStepsContainer>(OwnerActor);

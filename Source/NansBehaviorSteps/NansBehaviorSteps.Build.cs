@@ -6,25 +6,26 @@ namespace UnrealBuildTool.Rules
 	{
 		public NansBehaviorSteps(ReadOnlyTargetRules Target) : base(Target)
 		{
-			PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+			PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
 			PublicDependencyModuleNames.AddRange(
-				new string[]
+				new[]
 				{
 					"Core",
 					"AIModule",
+					"Engine",
 					"GameplayTasks",
 					"CoreUObject",
 					"NansCoreHelpers",
-					"NansUE4Utilities",
+					"NansUE4Utilities"
 					// ... add other public dependencies that you statically link with here ...
 				}
-				);
+			);
 
 			PrivateIncludePathModuleNames.AddRange(
-				new string[]
+				new[]
 				{
-					"MessageLog",
+					"MessageLog"
 				}
 			);
 		}
