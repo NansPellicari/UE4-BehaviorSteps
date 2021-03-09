@@ -13,7 +13,8 @@
 
 #include "Task/BTTask_RedoStep.h"
 
-#include "BTSteps.h"
+#include "BTStepsHandlerContainer.h"
+#include "BTStepsLibrary.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "NansUE4Utilities/public/Misc/ErrorUtils.h"
 
@@ -22,20 +23,11 @@
 EBTNodeResult::Type UBTTask_RedoStep::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	const UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-	UObject* BTSteps = BlackboardComp->GetValueAsObject(StepsKeyName);
+	UBTStepsHandlerContainer* BTSteps = Cast<UBTStepsHandlerContainer>(BlackboardComp->GetValueAsObject(StepsKeyName));
 
 	if (BTSteps == nullptr)
 	{
 		EDITOR_ERROR("BehaviorSteps", LOCTEXT("InvalidStepsKey", "Invalid key for Steps in "));
-		return EBTNodeResult::Aborted;
-	}
-
-	if (!BTSteps->Implements<UBTStepsHandler>())
-	{
-		EDITOR_ERROR(
-			"BehaviorSteps",
-			LOCTEXT("InvalidStepsHandlerObject", "Step Handler must implements IBTStepsHandler!")
-		);
 		return EBTNodeResult::Aborted;
 	}
 
@@ -45,7 +37,7 @@ EBTNodeResult::Type UBTTask_RedoStep::ExecuteTask(UBehaviorTreeComponent& OwnerC
 		return EBTNodeResult::Aborted;
 	}
 
-	IBTStepsHandler::Execute_RedoStep(BTSteps, FBTStep(StepToGo, StepToGoLabel), false);
+	UBTStepsLibrary::RedoStep(BTSteps, FBTStep(StepToGo, StepToGoLabel), false);
 
 	return EBTNodeResult::Succeeded;
 }

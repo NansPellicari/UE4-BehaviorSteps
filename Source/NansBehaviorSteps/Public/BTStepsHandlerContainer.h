@@ -14,25 +14,44 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BTStepsHandlerContainer.h"
-#include "BehaviorTree/BTService.h"
 
-#include "BTService_CreateStepsHandler.generated.h"
+#include "IStepsHandler.h"
+#include "StepsHandlerBase.h"
+
+
+#include "BTStepsHandlerContainer.generated.h"
+
 
 /**
- *
+ * Its goal is to contains the StepsHandler object.
+ * This way it can be saved in a BehaviorTree key.
+ * To call StepsHandler's functions, use the UBTStepsLibrary.
  */
-UCLASS()
-class NANSBEHAVIORSTEPS_API UBTService_CreateStepsHandler : public UBTService
+UCLASS(BlueprintType)
+class NANSBEHAVIORSTEPS_API UBTStepsHandlerContainer : public UObject
 {
 	GENERATED_BODY()
+public:
+	UBTStepsHandlerContainer()
+	{
+		Handler = MakeShareable(new NStepsHandlerBase());
+	}
 
-	UPROPERTY(EditInstanceOnly, Category = "Blackboard", meta = (MustImplement = "BTStepsHandler"))
-	TSubclassOf<UObject> HandlerClass = UBTStepsHandlerContainer::StaticClass();
 
-	UPROPERTY(EditInstanceOnly, Category = "Blackboard")
-	FName StepsKeyName = FName("Steps");
+	virtual void BeginDestroy() override
+	{
+		if (Handler.IsValid())
+		{
+			Handler.Reset();
+		}
+		Super::BeginDestroy();
+	}
 
-	UBTService_CreateStepsHandler(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-	virtual void OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+	TSharedPtr<IStepsHandler> GetHandler() const
+	{
+		return Handler;
+	}
+
+protected:
+	TSharedPtr<IStepsHandler> Handler;
 };

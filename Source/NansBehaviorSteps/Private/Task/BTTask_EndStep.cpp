@@ -13,7 +13,8 @@
 
 #include "Task/BTTask_EndStep.h"
 
-#include "BTSteps.h"
+#include "BTStepsHandlerContainer.h"
+#include "BTStepsLibrary.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "NansUE4Utilities/public/Misc/ErrorUtils.h"
 
@@ -22,7 +23,8 @@
 EBTNodeResult::Type UBTTask_EndStep::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	const UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-	UObject* BTSteps = BlackboardComp->GetValueAsObject(StepsKeyName);
+	UBTStepsHandlerContainer* BTSteps = Cast<UBTStepsHandlerContainer>(BlackboardComp->GetValueAsObject(StepsKeyName));
+
 
 	if (BTSteps == nullptr)
 	{
@@ -30,16 +32,7 @@ EBTNodeResult::Type UBTTask_EndStep::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 		return EBTNodeResult::Aborted;
 	}
 
-	if (!BTSteps->Implements<UBTStepsHandler>())
-	{
-		EDITOR_ERROR(
-			"BehaviorSteps",
-			LOCTEXT("InvalidStepsHandlerObject", "Step Handler must implements IBTStepsHandler!")
-		);
-		return EBTNodeResult::Aborted;
-	}
-
-	IBTStepsHandler::Execute_FinishedCurrentStep(BTSteps);
+	UBTStepsLibrary::FinishedCurrent(BTSteps);
 
 	return EBTNodeResult::Succeeded;
 }

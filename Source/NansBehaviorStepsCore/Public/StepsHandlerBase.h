@@ -24,13 +24,13 @@ public:
 	virtual void FinishedCurrent() override;
 	virtual void Redo(FNStep Step, bool FromFirstIteration = false) override;
 	virtual void JumpTo(FNStep Step) override;
-	virtual bool CanPlay(const FNStep& Step) override;
+	virtual bool CanPlay(const FNStep& Step) const override;
 	virtual bool IsPlaying(const FNStep& Step) const override;
 	virtual bool IsAlreadyDone(const FNStep Step) const override;
 	virtual bool Play(const FNStep& Step) override;
 	virtual FNStep GetStepToGo() const override;
-	virtual bool IsPlayable(const FNStep& Step) const override;
 	virtual void Clear() override;
+	virtual void SetDebug(bool bInDebug) override;
 
 	bool bDebug = false;
 protected:

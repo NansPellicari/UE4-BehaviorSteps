@@ -15,7 +15,7 @@
 
 #include "AIController.h"
 #include "BTStepsContainer.h"
-#include "BTStepsHandler.h"
+#include "BTStepsHandlerContainer.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "NansUE4Utilities/public/Misc/ErrorUtils.h"
 
@@ -39,7 +39,7 @@ void UBTService_CreateStepsHandler::OnBecomeRelevant(UBehaviorTreeComponent& Own
 	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
 	UObject* BTSteps = BlackboardComp->GetValueAsObject(StepsKeyName);
 
-	if (IsValid(BTSteps) && BTSteps->Implements<UBTStepsHandler>())
+	if (IsValid(BTSteps) && BTSteps->IsA<UBTStepsHandlerContainer>())
 	{
 		return;
 	}
@@ -55,11 +55,8 @@ void UBTService_CreateStepsHandler::OnBecomeRelevant(UBehaviorTreeComponent& Own
 		return;
 	}
 	IBTStepsContainer* OwnerStepsAware = Cast<IBTStepsContainer>(OwnerActor);
-	UObject* NewBTSteps = NewObject<UObject>(OwnerActor, HandlerClass);
-	TScriptInterface<IBTStepsHandler> StepsHandler;
-	StepsHandler.SetObject(NewBTSteps);
-	StepsHandler.SetInterface(Cast<IBTStepsHandler>(NewBTSteps));
-	OwnerStepsAware->SetBTSteps(StepsHandler);
+	UBTStepsHandlerContainer* NewBTSteps = NewObject<UBTStepsHandlerContainer>(OwnerActor, HandlerClass);
+	OwnerStepsAware->SetBTSteps(NewBTSteps);
 	BlackboardComp->SetValueAsObject(StepsKeyName, NewBTSteps);
 }
 

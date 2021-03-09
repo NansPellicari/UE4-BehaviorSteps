@@ -13,7 +13,8 @@
 
 #include "Composite/BTComposite_Step.h"
 
-#include "BTStepsHandler.h"
+#include "BTStepsHandlerContainer.h"
+#include "BTStepsLibrary.h"
 #include "NansBehaviorStepsLog.h"
 
 #include "BehaviorTree/BehaviorTree.h"
@@ -114,30 +115,20 @@ int32 UBTComposite_Step::GetNextChildHandler(FBehaviorTreeSearchData& SearchData
 		return BTSpecialChild::ReturnToParent;
 	}
 
-	UObject* BTSteps = BlackboardComp->GetValueAsObject(StepsKeyName);
+	UBTStepsHandlerContainer* BTSteps = Cast<UBTStepsHandlerContainer>(BlackboardComp->GetValueAsObject(StepsKeyName));
 	if (BTSteps == nullptr)
 	{
 		if (bDebug) UE_LOG(LogBehaviorSteps, Warning, TEXT("%s Invalid key for Steps"), ANSI_TO_TCHAR(__FUNCTION__));
 		return BTSpecialChild::ReturnToParent;
 	}
-	if (!BTSteps->Implements<UBTStepsHandler>())
-	{
-		if (bDebug) UE_LOG(
-			LogBehaviorSteps,
-			Warning,
-			TEXT("%s Invalid class for Steps, should implements IBTStepsHandler"),
-			ANSI_TO_TCHAR(__FUNCTION__)
-		);
-		return BTSpecialChild::ReturnToParent;
-	}
 
-	if (!IBTStepsHandler::Execute_StepIsPlaying(BTSteps, Step)
-		&& !IBTStepsHandler::Execute_PlayStep(BTSteps, Step))
+	if (!UBTStepsLibrary::IsPlaying(BTSteps, Step)
+		&& !UBTStepsLibrary::Play(BTSteps, Step))
 	{
-		if (Step.ParentId > 0 && IBTStepsHandler::Execute_StepIsPlaying(BTSteps, FBTStep(Step.ParentId)))
+		if (Step.ParentId > 0 && UBTStepsLibrary::IsPlaying(BTSteps, FBTStep(Step.ParentId)))
 		{
-			IBTStepsHandler::Execute_FinishedCurrentStep(BTSteps);
-			IBTStepsHandler::Execute_PlayStep(BTSteps, Step);
+			UBTStepsLibrary::FinishedCurrent(BTSteps);
+			UBTStepsLibrary::Play(BTSteps, Step);
 		}
 		else
 		{
@@ -165,9 +156,9 @@ int32 UBTComposite_Step::GetNextChildHandler(FBehaviorTreeSearchData& SearchData
 	}
 	// ------------------------------------------
 
-	if (NextChildIdx == BTSpecialChild::ReturnToParent && IBTStepsHandler::Execute_StepIsPlaying(BTSteps, Step))
+	if (NextChildIdx == BTSpecialChild::ReturnToParent && UBTStepsLibrary::IsPlaying(BTSteps, Step))
 	{
-		IBTStepsHandler::Execute_FinishedCurrentStep(BTSteps);
+		UBTStepsLibrary::FinishedCurrent(BTSteps);
 	}
 
 	return NextChildIdx;

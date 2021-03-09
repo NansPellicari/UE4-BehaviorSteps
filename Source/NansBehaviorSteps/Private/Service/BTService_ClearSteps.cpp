@@ -15,8 +15,8 @@
 
 
 #include "AIController.h"
-#include "BTSteps.h"
 #include "BTStepsContainer.h"
+#include "BTStepsLibrary.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/Actor.h"
 #include "NansUE4Utilities/public/Misc/ErrorUtils.h"
@@ -38,11 +38,11 @@ void UBTService_ClearSteps::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, 
 	Super::OnBecomeRelevant(OwnerComp, NodeMemory);
 
 	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-	UObject* BTSteps = BlackboardComp->GetValueAsObject(StepsKeyName);
+	UBTStepsHandlerContainer* BTSteps = Cast<UBTStepsHandlerContainer>(BlackboardComp->GetValueAsObject(StepsKeyName));
 
-	if (IsValid(BTSteps) && BTSteps->Implements<UBTStepsHandler>())
+	if (IsValid(BTSteps) && BTSteps->IsA<UBTStepsHandlerContainer>())
 	{
-		IBTStepsHandler::Execute_Clear(BTSteps);
+		UBTStepsLibrary::ClearStepsHandler(BTSteps);
 		AActor* OwnerActor = OwnerComp.GetAIOwner()->GetPawn<AActor>();
 		if (OwnerActor->Implements<UBTStepsContainer>())
 		{

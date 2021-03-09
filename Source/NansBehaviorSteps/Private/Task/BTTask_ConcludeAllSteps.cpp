@@ -1,8 +1,20 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2020-present Nans Pellicari (nans.pellicari@gmail.com).
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "Task/BTTask_ConcludeAllSteps.h"
 
-#include "BTSteps.h"
+#include "BTStepsHandlerContainer.h"
+#include "BTStepsLibrary.h"
 #include "BehaviorTree/BehaviorTreeTypes.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "NansUE4Utilities/public/Misc/ErrorUtils.h"
@@ -12,16 +24,18 @@
 EBTNodeResult::Type UBTTask_ConcludeAllSteps::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-	UObject* BTSteps = BlackboardComp->GetValueAsObject(StepsKeyName);
+	UBTStepsHandlerContainer* BTSteps = Cast<UBTStepsHandlerContainer>(BlackboardComp->GetValueAsObject(StepsKeyName));
 
-	if (BTSteps != nullptr && BTSteps->Implements<UBTStepsHandler>())
+	if (BTSteps != nullptr)
 	{
-		IBTStepsHandler::Execute_ConcludeAllSteps(BTSteps);
+		UBTStepsLibrary::ConcludeAll(BTSteps);
 		return EBTNodeResult::Succeeded;
 	}
 
 	EDITOR_ERROR(
-		"BehaviorSteps", LOCTEXT("StepsHandlerNotInitiated", "The steps handler can not be retrieved from the blackboard"));
+		"BehaviorSteps",
+		LOCTEXT("StepsHandlerNotInitiated", "The steps handler can not be retrieved from the blackboard")
+	);
 	return EBTNodeResult::Aborted;
 }
 

@@ -15,7 +15,6 @@
 
 #include "CoreMinimal.h"
 
-#include "BTStepsHandler.h"
 #include "BehaviorTree/BTCompositeNode.h"
 #include "BTComposite_Step.generated.h"
 

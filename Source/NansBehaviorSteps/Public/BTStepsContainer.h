@@ -15,7 +15,7 @@
 
 #include "CoreMinimal.h"
 
-#include "BTSteps.h"
+#include "BTStepsHandlerContainer.h"
 #include "UObject/Interface.h"
 #include "BTStepsContainer.generated.h"
 
@@ -33,6 +33,6 @@ class NANSBEHAVIORSTEPS_API IBTStepsContainer
 	GENERATED_BODY()
 
 public:
-	virtual void SetBTSteps(TScriptInterface<IBTStepsHandler> StepsHandler) = 0;
+	virtual void SetBTSteps(UBTStepsHandlerContainer* StepsHandler) = 0;
 	virtual void RemoveBTSteps() = 0;
 };

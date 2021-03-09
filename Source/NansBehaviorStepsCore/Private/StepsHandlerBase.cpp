@@ -128,7 +128,7 @@ void NStepsHandlerBase::JumpTo(FNStep Step)
 	StepToGo = Step;
 }
 
-bool NStepsHandlerBase::IsPlayable(const FNStep& Step) const
+bool NStepsHandlerBase::CanPlay(const FNStep& Step) const
 {
 	if (StepToGo == -1)
 	{
@@ -180,16 +180,16 @@ bool NStepsHandlerBase::Play(const FNStep& Step)
 	return bCanPlay;
 }
 
-bool NStepsHandlerBase::CanPlay(const FNStep& Step)
-{
-	return IsPlayable(Step);
-}
-
 void NStepsHandlerBase::ConcludeAll()
 {
 	CurrentStep.Reset();
 	StepToGo.Reset();
 	StepToGo = -1;
+}
+
+void NStepsHandlerBase::SetDebug(bool bInDebug)
+{
+	bDebug = bInDebug;
 }
 
 #undef LOCTEXT_NAMESPACE

@@ -25,10 +25,10 @@ public:
 	virtual void Redo(FNStep Step, bool FromFirstIteration = false) = 0;
 	virtual void JumpTo(FNStep Step) = 0;
 	virtual bool IsAlreadyDone(const FNStep Step) const = 0;
-	virtual bool CanPlay(const FNStep& Step) = 0;
+	virtual bool CanPlay(const FNStep& Step) const = 0;
 	virtual bool IsPlaying(const FNStep& Step) const = 0;
 	virtual bool Play(const FNStep& Step) = 0;
 	virtual FNStep GetStepToGo() const = 0;
-	virtual bool IsPlayable(const FNStep& Step) const = 0;
 	virtual void Clear() = 0;
+	virtual void SetDebug(bool bInDebug) = 0;
 };
