@@ -17,8 +17,8 @@ namespace UnrealBuildTool.Rules
 					"GameplayTasks",
 					"CoreUObject",
 					"NansCoreHelpers",
-					"NansUE4Utilities"
-					// ... add other public dependencies that you statically link with here ...
+					"NansUE4Utilities",
+					"NansBehaviorStepsCore"
 				}
 			);
 

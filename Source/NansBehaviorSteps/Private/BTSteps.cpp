@@ -13,141 +13,96 @@
 
 #include "BTSteps.h"
 
+
+#include "Step.h"
+#include "StepsHandlerBase.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "NansUE4Utilities/public/Misc/ErrorUtils.h"
 
 #define LOCTEXT_NAMESPACE "BehaviorSteps"
 
 UBTSteps::UBTSteps()
 {
-	FinishedSteps = TArray<int32>();
+	Handler = MakeUnique<NStepsHandlerBase>();
 }
 
 void UBTSteps::BeginDestroy()
 {
-	FinishedSteps.Empty();
-	StepToGo = 0;
+	if (Handler.IsValid())
+	{
+		Handler.Reset();
+	}
 	Super::BeginDestroy();
 }
 
-int32 UBTSteps::GetCurrentStep_Implementation()
+
+FBTStep UBTSteps::GetCurrentStep_Implementation()
 {
-	return CurrentStep;
+	return FBTStep(Handler->GetCurrent());
 }
 
-bool UBTSteps::StepIsAlreadyDone_Implementation(const int32 Step) const
+bool UBTSteps::StepIsAlreadyDone_Implementation(const FBTStep Step) const
 {
-	int32 Index;
-	return FinishedSteps.Find(Step, Index);
+	return Handler->IsAlreadyDone(static_cast<FNStep>(Step));
 }
 
 void UBTSteps::Clear_Implementation()
 {
-	FinishedSteps.Empty();
-	StepToGo = 0;
+	Handler->Clear();
 }
 
-int32 UBTSteps::GetStepToGo_Implementation()
+FBTStep UBTSteps::GetStepToGo_Implementation()
 {
-	return StepToGo;
+	return FBTStep(Handler->GetStepToGo());
+}
+
+void UBTSteps::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+	if (PropertyChangedEvent.GetPropertyName() == FName("bDebug"))
+	{
+		Handler->bDebug = bDebug;
+	}
 }
 
 void UBTSteps::FinishedCurrentStep_Implementation()
 {
-	if (Execute_StepIsAlreadyDone(this, CurrentStep))
-	{
-		if (bDebug) UE_LOG(LogTemp, Warning, TEXT("%s: Current Step %d already done"), *GetName(), CurrentStep);
-		return;
-	}
-
-	StepToGo = CurrentStep + 1;
-	FinishedSteps.Add(CurrentStep);
-	CurrentStep = 0;
+	return Handler->FinishedCurrent();
 }
 
-bool UBTSteps::StepIsPlaying_Implementation(const int32& Step)
+bool UBTSteps::StepIsPlaying_Implementation(const FBTStep& Step)
 {
-	return Step == CurrentStep;
+	return Handler->IsPlaying(static_cast<FNStep>(Step));
 }
 
-void UBTSteps::RedoStep_Implementation(int32 Step, bool FromLastPlay)
+void UBTSteps::RedoStep_Implementation(FBTStep Step, bool FromFirstIteration)
 {
-	int32 Index = FromLastPlay ? FinishedSteps.FindLast(Step) : FinishedSteps.Find(Step);
-
-	if (Index < 0)
-	{
-		EDITOR_ERROR(
-			"BehaviorSteps",
-			FText::Format(
-				LOCTEXT("InvalidStepNumberToRedo",
-					"The step Number {0} has not been played already, use JumpTo() method instead."),
-				Step)
-		);
-		return;
-	}
-
-	int32 Length = FinishedSteps.Num();
-	for (int32 i = Length - 1; i >= Index; i--)
-	{
-		FinishedSteps.RemoveAt(i);
-	}
-	StepToGo = Step;
-	CurrentStep = 0;
+	Handler->Redo(static_cast<FNStep>(Step), FromFirstIteration);
 }
 
-void UBTSteps::JumpTo_Implementation(int32 Step)
+void UBTSteps::JumpTo_Implementation(FBTStep Step)
 {
-	StepToGo = Step;
-	CurrentStep = 0;
+	Handler->JumpTo(static_cast<FNStep>(Step));
 }
 
-bool UBTSteps::StepIsPlayable_Implementation(const int32& Step, bool ResetStepToGoIfPlay)
+bool UBTSteps::StepIsPlayable_Implementation(const FBTStep& Step) const
 {
-	if (StepToGo == -1)
-	{
-		return Step == -1;
-	}
-
-	if (StepToGo > 0 && Step != StepToGo)
-	{
-		return false;
-	}
-
-	// We are in, so reset StepToGo
-	if (StepToGo > 0 && Step == StepToGo && ResetStepToGoIfPlay == true)
-	{
-		StepToGo = 0;
-	}
-
-	// Check if Step is already done (In case we try to replay an old step without a Redo)
-	return !Execute_StepIsAlreadyDone(this, Step);
+	return Handler->IsPlayable(static_cast<FNStep>(Step));
 }
 
-bool UBTSteps::StepCanPlayAndReset_Implementation(const int32& Step)
+bool UBTSteps::PlayStep_Implementation(const FBTStep& Step)
 {
-	return Execute_StepIsPlayable(this, Step, true);
+	return Handler->Play(static_cast<FNStep>(Step));
 }
 
-bool UBTSteps::PlayStep_Implementation(const int32& Step)
+bool UBTSteps::StepCanPlay_Implementation(const FBTStep& Step)
 {
-	bool bCanPlay = Execute_StepCanPlay(this, Step);
-	if (bCanPlay)
-	{
-		CurrentStep = Step;
-		StepToGo = CurrentStep;
-	}
-	return bCanPlay;
-}
-
-bool UBTSteps::StepCanPlay_Implementation(const int32& Step)
-{
-	bool bCanPlay = Execute_StepIsPlayable(this, Step, false);
-	return bCanPlay;
+	return Handler->CanPlay(static_cast<FNStep>(Step));
 }
 
 void UBTSteps::ConcludeAllSteps_Implementation()
 {
-	CurrentStep = 0;
-	StepToGo = -1;
+	Handler->ConcludeAll();
 }
 
 #undef LOCTEXT_NAMESPACE

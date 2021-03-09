@@ -106,8 +106,9 @@ int32 UBTComposite_Step::GetNextChildHandler(FBehaviorTreeSearchData& SearchData
 	EBTNodeResult::Type LastResult) const
 {
 	const UBlackboardComponent* BlackboardComp = SearchData.OwnerComp.GetBlackboardComponent();
+	const FBTStep Step = FBTStep(StepId, Label, ParentStepId);
 
-	if (StepId == 0)
+	if (Step == 0)
 	{
 		EDITOR_ERROR("BehaviorSteps", LOCTEXT("InvalidStepNumber", "Invalid step number (need to be > 0) in "));
 		return BTSpecialChild::ReturnToParent;
@@ -130,13 +131,13 @@ int32 UBTComposite_Step::GetNextChildHandler(FBehaviorTreeSearchData& SearchData
 		return BTSpecialChild::ReturnToParent;
 	}
 
-	if (!IBTStepsHandler::Execute_StepIsPlaying(BTSteps, StepId)
-		&& !IBTStepsHandler::Execute_PlayStep(BTSteps, StepId))
+	if (!IBTStepsHandler::Execute_StepIsPlaying(BTSteps, Step)
+		&& !IBTStepsHandler::Execute_PlayStep(BTSteps, Step))
 	{
-		if (ParentStepId > 0 && IBTStepsHandler::Execute_StepIsPlaying(BTSteps, ParentStepId))
+		if (Step.ParentId > 0 && IBTStepsHandler::Execute_StepIsPlaying(BTSteps, FBTStep(Step.ParentId)))
 		{
 			IBTStepsHandler::Execute_FinishedCurrentStep(BTSteps);
-			IBTStepsHandler::Execute_PlayStep(BTSteps, StepId);
+			IBTStepsHandler::Execute_PlayStep(BTSteps, Step);
 		}
 		else
 		{
@@ -164,7 +165,7 @@ int32 UBTComposite_Step::GetNextChildHandler(FBehaviorTreeSearchData& SearchData
 	}
 	// ------------------------------------------
 
-	if (NextChildIdx == BTSpecialChild::ReturnToParent && IBTStepsHandler::Execute_StepIsPlaying(BTSteps, StepId))
+	if (NextChildIdx == BTSpecialChild::ReturnToParent && IBTStepsHandler::Execute_StepIsPlaying(BTSteps, Step))
 	{
 		IBTStepsHandler::Execute_FinishedCurrentStep(BTSteps);
 	}
@@ -194,12 +195,17 @@ void UBTComposite_Step::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 
 FString UBTComposite_Step::GetStaticDescription() const
 {
+	const FBTStep Step = FBTStep(StepId, Label, ParentStepId);
 	FString Str;
-	if (ParentStepId > 0)
+	if (Step.ParentId > 0)
 	{
-		Str += FString::Printf(TEXT("%i > "), ParentStepId);
+		Str += FString::Printf(TEXT("%i > "), Step.ParentId);
 	}
-	Str += FString::Printf(TEXT("%i"), StepId);
+	Str += FString::Printf(TEXT("%i"), Step.Id);
+	if (!Step.Label.IsNone())
+	{
+		Str += FString::Printf(TEXT(" [%s]"), *Step.Label.ToString());
+	}
 	return Str;
 }
 

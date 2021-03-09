@@ -21,6 +21,9 @@ class NANSBEHAVIORSTEPS_API UBTTask_JumpTo : public UBTTaskNode
 	UPROPERTY(EditInstanceOnly, Category = "Step")
 	int32 StepToGo = 0;
 
+	UPROPERTY(EditInstanceOnly, Category = "Step")
+	FName StepToGoLabel = NAME_None;
+
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	virtual FString GetStaticDescription() const override;
 

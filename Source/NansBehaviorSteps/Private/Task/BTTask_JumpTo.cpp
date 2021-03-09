@@ -25,13 +25,13 @@ EBTNodeResult::Type UBTTask_JumpTo::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 		return EBTNodeResult::Aborted;
 	}
 
-	if (StepToGo == 0)
+	if (StepToGo == 0 && StepToGoLabel.IsNone())
 	{
 		EDITOR_ERROR("BehaviorSteps", LOCTEXT("InvalidStepNumber", "Invalid step number (need to be > 0) in "));
 		return EBTNodeResult::Aborted;
 	}
 
-	IBTStepsHandler::Execute_JumpTo(BTSteps, StepToGo);
+	IBTStepsHandler::Execute_JumpTo(BTSteps, FBTStep(StepToGo, StepToGoLabel));
 
 	return EBTNodeResult::Succeeded;
 }
@@ -47,7 +47,7 @@ FString UBTTask_JumpTo::GetStaticDescription() const
 		ReturnDesc += StepsKeyName.ToString();
 	}
 
-	ReturnDesc += "\nStep To Go: " + FString::FromInt(StepToGo);
+	ReturnDesc += "\nStep To Go: " + FBTStep(StepToGo, StepToGoLabel).ToString();
 
 	return ReturnDesc;
 }

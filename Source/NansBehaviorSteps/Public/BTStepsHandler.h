@@ -14,9 +14,25 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+
+#include "IStepsHandler.h"
+#include "Step.h"
 #include "UObject/Interface.h"
 
 #include "BTStepsHandler.generated.h"
+
+
+USTRUCT(BlueprintType)
+struct FBTStep : public FNStep
+{
+	GENERATED_USTRUCT_BODY()
+	FBTStep() {}
+	FBTStep(FNStep InStep) : FNStep(InStep.Id, InStep.Label, InStep.ParentId) {}
+	FBTStep(int32 InId) : FNStep(InId) {}
+	FBTStep(int32 InId, FName InLabel) : FNStep(InId, InLabel) {}
+	FBTStep(int32 InId, FName InLabel, int32 InParentId) : FNStep(InId, InLabel, InParentId) {}
+};
 
 UINTERFACE(BlueprintType)
 class NANSBEHAVIORSTEPS_API UBTStepsHandler : public UInterface
@@ -24,12 +40,13 @@ class NANSBEHAVIORSTEPS_API UBTStepsHandler : public UInterface
 	GENERATED_BODY()
 };
 
+/** TODO Try to light it and use only native StepsHandler */
 class NANSBEHAVIORSTEPS_API IBTStepsHandler
 {
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "StepsHandler")
-	int32 GetCurrentStep();
+	FBTStep GetCurrentStep();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "StepsHandler")
 	void ConcludeAllSteps();
@@ -38,32 +55,32 @@ public:
 	void FinishedCurrentStep();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "StepsHandler")
-	void RedoStep(int32 Step, bool FromLastPlay = false);
+	void RedoStep(FBTStep Step, bool FromFirstIteration = false);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "StepsHandler")
-	void JumpTo(int32 Step);
+	void JumpTo(FBTStep Step);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "StepsHandler")
-	bool StepIsAlreadyDone(const int32 Step) const;
+	bool StepIsAlreadyDone(const FBTStep Step) const;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "StepsHandler")
-	bool StepCanPlay(const int32& Step);
+	bool StepCanPlay(const FBTStep& Step);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "StepsHandler")
-	bool StepIsPlaying(const int32& Step);
+	bool StepIsPlaying(const FBTStep& Step);
 
 	// If the step is the same as StepToGo, this method reset StepToGo to 0
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "StepsHandler")
-	bool StepCanPlayAndReset(const int32& Step);
+	bool StepCanPlayAndReset(const FBTStep& Step);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "StepsHandler")
-	bool PlayStep(const int32& Step);
+	bool PlayStep(const FBTStep& Step);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "StepsHandler")
-	int32 GetStepToGo();
+	FBTStep GetStepToGo();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "StepsHandler")
-	bool StepIsPlayable(const int32& Step, bool ResetStepToGoIfPlay = true);
+	bool StepIsPlayable(const FBTStep& Step) const;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "StepsHandler")
 	void Clear();

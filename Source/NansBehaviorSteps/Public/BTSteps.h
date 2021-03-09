@@ -15,9 +15,11 @@
 
 #include "CoreMinimal.h"
 #include "BTStepsHandler.h"
+#include "StepsHandlerBase.h"
 #include "UObject/NoExportTypes.h"
 
 #include "BTSteps.generated.h"
+
 
 /**
  */
@@ -30,28 +32,27 @@ public:
 	UBTSteps();
 	virtual void BeginDestroy() override;
 
-	virtual int32 GetCurrentStep_Implementation() override;
+	// BEGIN IBTStepsHandler overrides
+	virtual FBTStep GetCurrentStep_Implementation() override;
 	virtual void ConcludeAllSteps_Implementation() override;
 	virtual void FinishedCurrentStep_Implementation() override;
-	virtual bool PlayStep_Implementation(const int32& Step) override;
-	virtual bool StepIsPlaying_Implementation(const int32& Step) override;
-	virtual void RedoStep_Implementation(int32 Step, bool FromLastPlay = false) override;
-	virtual void JumpTo_Implementation(int32 Step) override;
-	virtual bool StepIsAlreadyDone_Implementation(const int32 Step) const override;
+	virtual bool PlayStep_Implementation(const FBTStep& Step) override;
+	virtual bool StepIsPlaying_Implementation(const FBTStep& Step) override;
+	virtual void RedoStep_Implementation(FBTStep Step, bool FromFirstIteration = false) override;
+	virtual void JumpTo_Implementation(FBTStep Step) override;
+	virtual bool StepIsAlreadyDone_Implementation(const FBTStep Step) const override;
 	virtual void Clear_Implementation() override;
-	virtual bool StepCanPlay_Implementation(const int32& Step) override;
+	virtual bool StepCanPlay_Implementation(const FBTStep& Step) override;
 	// If the step is the same as StepToGo, this method reset StepToGo to 0
-	virtual bool StepCanPlayAndReset_Implementation(const int32& Step) override;
-	virtual bool StepIsPlayable_Implementation(const int32& Step, bool ResetStepToGoIfPlay = true) override;
-	virtual int32 GetStepToGo_Implementation() override;
+	virtual bool StepIsPlayable_Implementation(const FBTStep& Step) const override;
+	virtual FBTStep GetStepToGo_Implementation() override;
+	// END IBTStepsHandler overrides
 
+
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 protected:
-	UPROPERTY(BlueprintReadWrite, Category = "Step")
-	int32 StepToGo = 0;
-	int32 CurrentStep = 0;
+	TUniquePtr<NStepsHandlerBase> Handler;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Step")
 	bool bDebug = false;
-
-	TArray<int32> FinishedSteps;
 };

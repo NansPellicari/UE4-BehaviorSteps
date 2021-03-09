@@ -22,6 +22,9 @@ class NANSBEHAVIORSTEPS_API UBTService_RedoStep : public UBTService
 	UPROPERTY(EditInstanceOnly, Category = "Step")
 	int32 StepToGo = 0;
 
+	UPROPERTY(EditInstanceOnly, Category = "Step")
+	FName StepToGoLabel = NAME_None;
+
 	UBTService_RedoStep(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	virtual void OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	virtual FString GetStaticDescription() const override;

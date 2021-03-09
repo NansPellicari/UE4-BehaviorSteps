@@ -16,6 +16,11 @@
 	"Installed": false,
 	"Modules": [
 		{
+			"Name": "NansBehaviorStepsCore",
+			"Type": "Runtime",
+			"LoadingPhase": "PreLoadingScreen"
+		},
+		{
 			"Name": "NansBehaviorSteps",
 			"Type": "Runtime",
 			"LoadingPhase": "PreLoadingScreen"
