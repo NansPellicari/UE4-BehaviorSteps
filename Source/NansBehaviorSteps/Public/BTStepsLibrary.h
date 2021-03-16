@@ -20,6 +20,10 @@
 #include "BTStepsLibrary.generated.h"
 
 class UBTStepsHandlerContainer;
+
+/**
+ * Just an adapter allowing to transit FNStep in Blueprint
+ */
 USTRUCT(BlueprintType)
 struct FBTStep : public FNStep
 {
@@ -32,7 +36,9 @@ struct FBTStep : public FNStep
 };
 
 /**
- * 
+ * The purpose of this BlueprintLibrary is to access all of the StepsHandler c++ functions.
+ * This way you can create your own Blueprint's BehaviorTree Task, Decorator Or Service
+ * and have access to the core features.
  */
 UCLASS()
 class NANSBEHAVIORSTEPS_API UBTStepsLibrary : public UBlueprintFunctionLibrary
