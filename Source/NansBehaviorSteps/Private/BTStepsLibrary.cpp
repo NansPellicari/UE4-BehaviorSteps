@@ -32,7 +32,10 @@ bool UBTStepsLibrary::IsAlreadyDone(UBTStepsHandlerContainer* Container, const F
 
 void UBTStepsLibrary::ClearStepsHandler(UBTStepsHandlerContainer* Container)
 {
-	GetHandler(Container)->Clear();
+	if (IsValid(Container) && GetHandler(Container).IsValid())
+	{
+		GetHandler(Container)->Clear();
+	}
 }
 
 FBTStep UBTStepsLibrary::GetStepToGo(UBTStepsHandlerContainer* Container)
