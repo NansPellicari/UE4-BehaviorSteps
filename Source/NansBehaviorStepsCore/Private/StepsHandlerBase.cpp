@@ -27,7 +27,6 @@ NStepsHandlerBase::~NStepsHandlerBase()
 	CurrentStep.Reset();
 }
 
-
 FNStep NStepsHandlerBase::GetCurrent() const
 {
 	return CurrentStep;
@@ -58,12 +57,10 @@ void NStepsHandlerBase::FinishedCurrent()
 {
 	if (IsAlreadyDone(CurrentStep))
 	{
-		if (bDebug) UE_LOG(
-			LogTemp,
-			Warning,
-			TEXT("Current Step %d already done"),
-			*CurrentStep.ToString()
-		)
+		if (bDebug)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Current Step %d already done"), *CurrentStep.ToString());
+		}
 		return;
 	}
 
@@ -77,12 +74,7 @@ void NStepsHandlerBase::FinishedCurrent()
 	}
 	if (bDebug)
 	{
-		UE_LOG(
-			LogBehaviorStepsC,
-			Display,
-			TEXT("Step %s has stopped"),
-			*CurrentStep.ToString()
-		);
+		UE_LOG(LogBehaviorStepsC, Display, TEXT("Step %s has stopped"), *CurrentStep.ToString());
 	}
 	CurrentStep.Reset();
 }
@@ -168,12 +160,7 @@ bool NStepsHandlerBase::Play(const FNStep& Step)
 		CurrentStep = Step;
 		if (bDebug)
 		{
-			UE_LOG(
-				LogBehaviorStepsC,
-				Display,
-				TEXT("Step %s is playing"),
-				*CurrentStep.ToString()
-			);
+			UE_LOG(LogBehaviorStepsC, Display, TEXT("Step %s is playing"), *CurrentStep.ToString());
 		}
 		StepToGo.Reset();
 	}
