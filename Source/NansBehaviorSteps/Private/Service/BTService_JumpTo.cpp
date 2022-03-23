@@ -13,8 +13,9 @@
 
 #include "Service/BTService_JumpTo.h"
 
-#include "BTStepsHandlerContainer.h"
 #include "BTStepsLibrary.h"
+#include "StepsHandler.h"
+#include "BTStepsSubsystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "NansUE4Utilities/public/Misc/ErrorUtils.h"
 
@@ -32,37 +33,20 @@ UBTService_JumpTo::UBTService_JumpTo(const FObjectInitializer& ObjectInitializer
 
 void UBTService_JumpTo::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	const UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-	UBTStepsHandlerContainer* BTSteps = Cast<UBTStepsHandlerContainer>(BlackboardComp->GetValueAsObject(StepsKeyName));
-
-	if (BTSteps == nullptr)
-	{
-		EDITOR_ERROR("BehaviorSteps", LOCTEXT("InvalidStepsKey", "Invalid key for Steps in "));
-		return;
-	}
+	const TSharedPtr<NStepsHandler>& StepsHandler = UBTStepsLibrary::GetStepsSubsystem(OwnerComp)
+		->GetStepsHandler(OwnerComp.GetAIOwner());
 
 	if (StepToGo == 0 && StepToGoLabel.IsNone())
 	{
 		EDITOR_ERROR("BehaviorSteps", LOCTEXT("InvalidStepNumber", "Invalid step number (need to be > 0) in "));
 		return;
 	}
-
-	UBTStepsLibrary::JumpTo(BTSteps, FBTStep(StepToGo, StepToGoLabel));
+	StepsHandler->JumpTo(FNStep(StepToGo, StepToGoLabel));
 }
 
 FString UBTService_JumpTo::GetStaticDescription() const
 {
-	FString ReturnDesc;
-
-	if (!StepsKeyName.IsNone())
-	{
-		ReturnDesc += TEXT("Steps: ");
-		ReturnDesc += StepsKeyName.ToString();
-	}
-
-	ReturnDesc += "\nStep To Go: " + FBTStep(StepToGo, StepToGoLabel).ToString();
-
-	return ReturnDesc;
+	return "\nStep To Go: " + FNStep(StepToGo, StepToGoLabel).ToString();
 }
 
 #if WITH_EDITOR

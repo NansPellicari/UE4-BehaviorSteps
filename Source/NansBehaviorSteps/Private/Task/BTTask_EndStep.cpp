@@ -13,34 +13,21 @@
 
 #include "Task/BTTask_EndStep.h"
 
-#include "BTStepsHandlerContainer.h"
 #include "BTStepsLibrary.h"
-#include "BehaviorTree/BlackboardComponent.h"
+#include "StepsHandler.h"
+#include "BTStepsSubsystem.h"
 #include "NansUE4Utilities/public/Misc/ErrorUtils.h"
 
 #define LOCTEXT_NAMESPACE "BehaviorSteps"
 
 EBTNodeResult::Type UBTTask_EndStep::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	const UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-	UBTStepsHandlerContainer* BTSteps = Cast<UBTStepsHandlerContainer>(BlackboardComp->GetValueAsObject(StepsKeyName));
+	const TSharedPtr<NStepsHandler>& StepsHandler = UBTStepsLibrary::GetStepsSubsystem(OwnerComp)
+		->GetStepsHandler(OwnerComp.GetAIOwner());
 
-
-	if (BTSteps == nullptr)
-	{
-		EDITOR_ERROR("BehaviorSteps", LOCTEXT("InvalidStepsKey", "Invalid key for Steps in "));
-		return EBTNodeResult::Aborted;
-	}
-
-	UBTStepsLibrary::FinishedCurrent(BTSteps);
+	StepsHandler->FinishedCurrent();
 
 	return EBTNodeResult::Succeeded;
-}
-
-FString UBTTask_EndStep::GetStaticDescription() const
-{
-	FString ReturnDesc;
-	return ReturnDesc;
 }
 
 #if WITH_EDITOR

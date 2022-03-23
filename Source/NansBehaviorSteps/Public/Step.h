@@ -17,16 +17,25 @@
 
 #include "Step.generated.h"
 
-USTRUCT()
-struct FNStep
+USTRUCT(BlueprintType)
+struct NANSBEHAVIORSTEPS_API FNStep
 {
 	GENERATED_USTRUCT_BODY()
 	FNStep() {}
 	FNStep(int32 InId) : Id(InId) {}
-	FNStep(int32 InId, FName InLabel) : Id(InId), Label(InLabel) {}
-	FNStep(int32 InId, FName InLabel, int32 InParentId) : Id(InId), ParentId(InParentId), Label(InLabel) {}
+
+	FNStep(int32 InId, FName InLabel) : Id(InId),
+										Label(InLabel) {}
+
+	FNStep(int32 InId, FName InLabel, int32 InParentId) : Id(InId),
+														  ParentId(InParentId),
+														  Label(InLabel) {}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=StepDefinition)
 	int32 Id = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=StepDefinition)
 	int32 ParentId = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=StepDefinition)
 	FName Label = NAME_None;
 
 	void Reset()

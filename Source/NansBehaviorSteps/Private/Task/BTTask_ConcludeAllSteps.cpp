@@ -13,8 +13,9 @@
 
 #include "Task/BTTask_ConcludeAllSteps.h"
 
-#include "BTStepsHandlerContainer.h"
 #include "BTStepsLibrary.h"
+#include "StepsHandler.h"
+#include "BTStepsSubsystem.h"
 #include "BehaviorTree/BehaviorTreeTypes.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "NansUE4Utilities/public/Misc/ErrorUtils.h"
@@ -23,26 +24,15 @@
 
 EBTNodeResult::Type UBTTask_ConcludeAllSteps::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-	UBTStepsHandlerContainer* BTSteps = Cast<UBTStepsHandlerContainer>(BlackboardComp->GetValueAsObject(StepsKeyName));
+	const TSharedPtr<NStepsHandler>& StepsHandler = UBTStepsLibrary::GetStepsSubsystem(OwnerComp)
+		->GetStepsHandler(OwnerComp.GetAIOwner());
 
-	if (BTSteps != nullptr)
+	if (StepsHandler.IsValid())
 	{
-		UBTStepsLibrary::ConcludeAll(BTSteps);
+		StepsHandler->ConcludeAll();
 		return EBTNodeResult::Succeeded;
 	}
-
-	EDITOR_ERROR(
-		"BehaviorSteps",
-		LOCTEXT("StepsHandlerNotInitiated", "The steps handler can not be retrieved from the blackboard")
-	);
 	return EBTNodeResult::Aborted;
-}
-
-FString UBTTask_ConcludeAllSteps::GetStaticDescription() const
-{
-	FString ReturnDesc;
-	return ReturnDesc;
 }
 
 #if WITH_EDITOR

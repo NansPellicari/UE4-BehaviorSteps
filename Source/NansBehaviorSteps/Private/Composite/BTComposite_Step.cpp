@@ -13,9 +13,10 @@
 
 #include "Composite/BTComposite_Step.h"
 
-#include "BTStepsHandlerContainer.h"
 #include "BTStepsLibrary.h"
 #include "NansBehaviorStepsLog.h"
+#include "StepsHandler.h"
+#include "BTStepsSubsystem.h"
 
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -76,26 +77,25 @@ void UBTComposite_Step::InitializeFromAsset(UBehaviorTree& Asset)
 	Super::InitializeFromAsset(Asset);
 	if (!IsValid(Asset.RootNode)) return;
 
-
 	if (IsValid(GetWorld()) && GetWorld()->IsGameWorld())
 	{
 		if (bDebug) UE_LOG(
 			LogBehaviorSteps,
-			Warning,
-			TEXT("World %s"),
+			Log,
+			TEXT(" In world %s"),
 			*UNTextLibrary::WorldTypeToString(GetWorld()->WorldType)
 		);
 		return;
 	}
 
-	if (bDebug) UE_LOG(LogBehaviorSteps, Warning, TEXT(">>>>>> START: Seek Steps for %s (id: %i)"), *NodeName, StepId);
+	if (bDebug) UE_LOG(LogBehaviorSteps, Warning, TEXT(">>>>>> START: Seek Steps for %s (id: %i)"), *NodeName, Step.Id);
 	int32 MyNum = 0;
 	int32 ParentNum = 0;
 	bool bBreak = false;
 	FindStepsInChildren(Asset.RootNode, MyNum, 0, ParentNum, bBreak);
-	ParentStepId = ParentNum;
-	StepId = MyNum + 1;
-	if (bDebug) UE_LOG(LogBehaviorSteps, Warning, TEXT("<<<<<< END: for %s (id: %i)"), *NodeName, StepId);
+	Step.ParentId = ParentNum;
+	Step.Id = MyNum + 1;
+	if (bDebug) UE_LOG(LogBehaviorSteps, Warning, TEXT("<<<<<< END: for %s (id: %i)"), *NodeName, Step.Id);
 }
 
 void UBTComposite_Step::NotifyNodeActivation(FBehaviorTreeSearchData& SearchData) const {}
@@ -106,29 +106,34 @@ void UBTComposite_Step::NotifyNodeDeactivation(FBehaviorTreeSearchData& SearchDa
 int32 UBTComposite_Step::GetNextChildHandler(FBehaviorTreeSearchData& SearchData, int32 PrevChild,
 	EBTNodeResult::Type LastResult) const
 {
-	const UBlackboardComponent* BlackboardComp = SearchData.OwnerComp.GetBlackboardComponent();
-	const FBTStep Step = FBTStep(StepId, Label, ParentStepId);
-
 	if (Step == 0)
 	{
 		EDITOR_ERROR("BehaviorSteps", LOCTEXT("InvalidStepNumber", "Invalid step number (need to be > 0) in "));
 		return BTSpecialChild::ReturnToParent;
 	}
 
-	UBTStepsHandlerContainer* BTSteps = Cast<UBTStepsHandlerContainer>(BlackboardComp->GetValueAsObject(StepsKeyName));
-	if (BTSteps == nullptr)
+	const AAIController* AIOwner = SearchData.OwnerComp.GetAIOwner();
+	const TSharedPtr<NStepsHandler>& BTSteps = UBTStepsLibrary::GetStepsSubsystem(SearchData.OwnerComp)->
+		GetStepsHandler(AIOwner);
+	if (!BTSteps.IsValid())
 	{
-		if (bDebug) UE_LOG(LogBehaviorSteps, Warning, TEXT("%s Invalid key for Steps"), ANSI_TO_TCHAR(__FUNCTION__));
+		EDITOR_WARN(
+			"BehaviorSteps",
+			FText::Format(
+				LOCTEXT("", "{0} Can't find the steps handler for current AI owner"),
+				FText::FromString(ANSI_TO_TCHAR(__FUNCTION__))
+			)
+		);
 		return BTSpecialChild::ReturnToParent;
 	}
 
-	if (!UBTStepsLibrary::IsPlaying(BTSteps, Step)
-		&& !UBTStepsLibrary::Play(BTSteps, Step))
+	if (!BTSteps->IsPlaying(Step)
+		&& !BTSteps->Play(Step))
 	{
-		if (Step.ParentId > 0 && UBTStepsLibrary::IsPlaying(BTSteps, FBTStep(Step.ParentId)))
+		if (Step.ParentId > 0 && BTSteps->IsPlaying(FNStep(Step.ParentId)))
 		{
-			UBTStepsLibrary::FinishedCurrent(BTSteps);
-			UBTStepsLibrary::Play(BTSteps, Step);
+			BTSteps->FinishedCurrent();
+			BTSteps->Play(Step);
 		}
 		else
 		{
@@ -156,9 +161,9 @@ int32 UBTComposite_Step::GetNextChildHandler(FBehaviorTreeSearchData& SearchData
 	}
 	// ------------------------------------------
 
-	if (NextChildIdx == BTSpecialChild::ReturnToParent && UBTStepsLibrary::IsPlaying(BTSteps, Step))
+	if (NextChildIdx == BTSpecialChild::ReturnToParent && BTSteps->IsPlaying(Step))
 	{
-		UBTStepsLibrary::FinishedCurrent(BTSteps);
+		BTSteps->FinishedCurrent();
 	}
 
 	return NextChildIdx;
@@ -186,7 +191,6 @@ void UBTComposite_Step::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 
 FString UBTComposite_Step::GetStaticDescription() const
 {
-	const FBTStep Step = FBTStep(StepId, Label, ParentStepId);
 	FString Str;
 	if (Step.ParentId > 0)
 	{

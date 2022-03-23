@@ -15,24 +15,27 @@
 
 #include "CoreMinimal.h"
 
-#include "BTStepsHandlerContainer.h"
-#include "UObject/Interface.h"
-#include "BTStepsContainer.generated.h"
+#include "BTStepsSubsystem.generated.h"
 
-UINTERFACE()
-class UBTStepsContainer : public UInterface
-{
-	GENERATED_BODY()
-};
+class AAIController;
+class NStepsHandler;
 
 /**
  * 
  */
-class NANSBEHAVIORSTEPS_API IBTStepsContainer
+UCLASS()
+class NANSBEHAVIORSTEPS_API UBTStepsSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
-
 public:
-	virtual void SetBTSteps(UBTStepsHandlerContainer* StepsHandler) = 0;
-	virtual void RemoveBTSteps() = 0;
+	// Begin USubsystem
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
+	// End USubsystem
+
+	const TSharedPtr<NStepsHandler>& CreateStepsHandler(const AAIController* Owner);
+	const TSharedPtr<NStepsHandler>& GetStepsHandler(const AAIController* Owner);
+	void RemoveStepsHandler(const AAIController* Owner);
+private:
+	TMap<const FString, TSharedPtr<NStepsHandler>> StepsHandlers;
 };

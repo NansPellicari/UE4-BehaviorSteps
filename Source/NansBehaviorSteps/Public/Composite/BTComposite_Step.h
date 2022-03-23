@@ -14,6 +14,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Step.h"
 
 #include "BehaviorTree/BTCompositeNode.h"
 #include "BTComposite_Step.generated.h"
@@ -32,14 +33,9 @@ class NANSBEHAVIORSTEPS_API UBTComposite_Step : public UBTCompositeNode
 	bool bIsSequence = true;
 	UPROPERTY(EditAnywhere, Category="Blackboard")
 	bool bDebug = false;
-	UPROPERTY(VisibleAnywhere, Category = "Blackboard")
-	FName StepsKeyName = FName("Steps");
+
 	UPROPERTY(EditAnywhere, Category="Steps")
-	FName Label = NAME_None;
-	UPROPERTY(VisibleAnywhere, Category = "Steps")
-	int32 StepId = 0;
-	UPROPERTY(VisibleAnywhere, Category = "Steps")
-	int32 ParentStepId = 0;
+	FNStep Step;
 
 	void FindStepsInChildren(const UBTCompositeNode* NodeToParse, int32& Num, int32 ParentNum, int32& FinalParentNum,
 		bool& bBreak) const;

@@ -26,9 +26,6 @@ class NANSBEHAVIORSTEPS_API UBTService_JumpTo : public UBTService
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditInstanceOnly, Category = "Blackboard")
-	FName StepsKeyName = FName("Steps");
-
 	UPROPERTY(EditInstanceOnly, Category = "Step")
 	int32 StepToGo = 0;
 

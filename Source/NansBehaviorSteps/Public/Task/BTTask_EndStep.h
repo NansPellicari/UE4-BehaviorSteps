@@ -27,11 +27,7 @@ class NANSBEHAVIORSTEPS_API UBTTask_EndStep : public UBTTaskNode
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditInstanceOnly, Category = "Blackboard")
-	FName StepsKeyName = FName("Steps");
-
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-	virtual FString GetStaticDescription() const override;
 
 #if WITH_EDITOR
 	virtual FName GetNodeIconName() const override;

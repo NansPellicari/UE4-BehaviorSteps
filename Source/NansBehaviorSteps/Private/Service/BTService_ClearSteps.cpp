@@ -13,12 +13,9 @@
 
 #include "Service/BTService_ClearSteps.h"
 
-
 #include "AIController.h"
-#include "BTStepsContainer.h"
 #include "BTStepsLibrary.h"
-#include "BehaviorTree/BlackboardComponent.h"
-#include "GameFramework/Actor.h"
+#include "BTStepsSubsystem.h"
 #include "NansUE4Utilities/public/Misc/ErrorUtils.h"
 
 #define LOCTEXT_NAMESPACE "BehaviorSteps"
@@ -37,28 +34,13 @@ void UBTService_ClearSteps::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, 
 {
 	Super::OnBecomeRelevant(OwnerComp, NodeMemory);
 
-	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-	UBTStepsHandlerContainer* BTSteps = Cast<UBTStepsHandlerContainer>(BlackboardComp->GetValueAsObject(StepsKeyName));
-
-	if (IsValid(BTSteps) && BTSteps->IsA<UBTStepsHandlerContainer>())
-	{
-		UBTStepsLibrary::ClearStepsHandler(BTSteps);
-		AActor* OwnerActor = OwnerComp.GetAIOwner()->GetPawn<AActor>();
-		if (OwnerActor->Implements<UBTStepsContainer>())
-		{
-			IBTStepsContainer* OwnerStepsAware = Cast<IBTStepsContainer>(OwnerActor);
-			OwnerStepsAware->RemoveBTSteps();
-		}
-		BlackboardComp->ClearValue(StepsKeyName);
-	}
+	const AAIController* AIOwner = OwnerComp.GetAIOwner();
+	UBTStepsLibrary::GetStepsSubsystem(OwnerComp)->RemoveStepsHandler(AIOwner);
 }
 
 FString UBTService_ClearSteps::GetStaticDescription() const
 {
-	FString Desc;
-	Desc += "Steps Key Name: " + StepsKeyName.ToString();
-
-	return Desc;
+	return "Will remove the step handler for this BT owner";
 }
 
 #if WITH_EDITOR

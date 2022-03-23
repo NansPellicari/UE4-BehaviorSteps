@@ -17,8 +17,7 @@ namespace UnrealBuildTool.Rules
 					"GameplayTasks",
 					"CoreUObject",
 					"NansCoreHelpers",
-					"NansUE4Utilities",
-					"NansBehaviorStepsCore"
+					"NansUE4Utilities"
 				}
 			);
 

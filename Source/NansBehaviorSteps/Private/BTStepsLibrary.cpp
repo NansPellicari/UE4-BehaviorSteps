@@ -12,73 +12,23 @@
 // limitations under the License.
 
 #include "NansBehaviorSteps/Public/BTStepsLibrary.h"
+#include "Misc/ErrorUtils.h"
+#include "AIController.h"
 
-#include "BTStepsHandlerContainer.h"
+#include "BTStepsSubsystem.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
 
-TSharedPtr<IStepsHandler> UBTStepsLibrary::GetHandler(UBTStepsHandlerContainer* Container)
+#define LOCTEXT_NAMESPACE "BehaviorSteps"
+
+UBTStepsSubsystem* UBTStepsLibrary::GetStepsSubsystem(const UBehaviorTreeComponent& OwnerComp)
 {
-	return Container->GetHandler();
+	const AAIController* AIOwner = OwnerComp.GetAIOwner();
+	check(IsValid(AIOwner))
+	const UWorld* World = GEngine->GetWorldFromContextObject(AIOwner, EGetWorldErrorMode::LogAndReturnNull);
+	check(IsValid(World))
+	const UGameInstance* GI = World->GetGameInstance();
+	UBTStepsSubsystem* MySubsystem = GI->GetSubsystem<UBTStepsSubsystem>();
+	check(IsValid(MySubsystem));
+	return MySubsystem;
 }
-
-FBTStep UBTStepsLibrary::GetCurrent(UBTStepsHandlerContainer* Container)
-{
-	return FBTStep(GetHandler(Container)->GetCurrent());
-}
-
-bool UBTStepsLibrary::IsAlreadyDone(UBTStepsHandlerContainer* Container, const FBTStep Step)
-{
-	return GetHandler(Container)->IsAlreadyDone(static_cast<FNStep>(Step));
-}
-
-void UBTStepsLibrary::ClearStepsHandler(UBTStepsHandlerContainer* Container)
-{
-	if (IsValid(Container) && GetHandler(Container).IsValid())
-	{
-		GetHandler(Container)->Clear();
-	}
-}
-
-FBTStep UBTStepsLibrary::GetStepToGo(UBTStepsHandlerContainer* Container)
-{
-	return FBTStep(GetHandler(Container)->GetStepToGo());
-}
-
-void UBTStepsLibrary::FinishedCurrent(UBTStepsHandlerContainer* Container)
-{
-	return GetHandler(Container)->FinishedCurrent();
-}
-
-bool UBTStepsLibrary::IsPlaying(UBTStepsHandlerContainer* Container, const FBTStep& Step)
-{
-	return GetHandler(Container)->IsPlaying(static_cast<FNStep>(Step));
-}
-
-void UBTStepsLibrary::RedoStep(UBTStepsHandlerContainer* Container, FBTStep Step, bool FromFirstIteration)
-{
-	GetHandler(Container)->Redo(static_cast<FNStep>(Step), FromFirstIteration);
-}
-
-void UBTStepsLibrary::JumpTo(UBTStepsHandlerContainer* Container, FBTStep Step)
-{
-	GetHandler(Container)->JumpTo(static_cast<FNStep>(Step));
-}
-
-bool UBTStepsLibrary::Play(UBTStepsHandlerContainer* Container, const FBTStep& Step)
-{
-	return GetHandler(Container)->Play(static_cast<FNStep>(Step));
-}
-
-bool UBTStepsLibrary::CanPlay(UBTStepsHandlerContainer* Container, const FBTStep& Step)
-{
-	return GetHandler(Container)->CanPlay(static_cast<FNStep>(Step));
-}
-
-void UBTStepsLibrary::ConcludeAll(UBTStepsHandlerContainer* Container)
-{
-	GetHandler(Container)->ConcludeAll();
-}
-
-void UBTStepsLibrary::SetDebug(UBTStepsHandlerContainer* Container, bool bDebug)
-{
-	GetHandler(Container)->SetDebug(bDebug);
-}
+#undef LOCTEXT_NAMESPACE

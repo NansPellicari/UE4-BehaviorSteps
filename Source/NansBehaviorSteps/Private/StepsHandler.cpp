@@ -11,28 +11,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "StepsHandlerBase.h"
+#include "StepsHandler.h"
 
-#include "NansBehaviorStepsCoreLog.h"
+#include "NansBehaviorStepsLog.h"
 
-NStepsHandlerBase::NStepsHandlerBase()
+NStepsHandler::NStepsHandler()
 {
 	FinishedSteps = TArray<FNStep>();
 }
 
-NStepsHandlerBase::~NStepsHandlerBase()
+NStepsHandler::~NStepsHandler()
 {
 	FinishedSteps.Empty();
 	StepToGo.Reset();
 	CurrentStep.Reset();
 }
 
-FNStep NStepsHandlerBase::GetCurrent() const
+const FNStep& NStepsHandler::GetCurrent() const
 {
 	return CurrentStep;
 }
 
-bool NStepsHandlerBase::IsAlreadyDone(const FNStep Step) const
+bool NStepsHandler::IsAlreadyDone(const FNStep& Step) const
 {
 	if (FinishedSteps.Num() <= 0)
 	{
@@ -41,19 +41,19 @@ bool NStepsHandlerBase::IsAlreadyDone(const FNStep Step) const
 	return FinishedSteps.Contains(Step);
 }
 
-void NStepsHandlerBase::Clear()
+void NStepsHandler::Clear()
 {
 	FinishedSteps.Empty();
 	StepToGo.Reset();
 	CurrentStep.Reset();
 }
 
-FNStep NStepsHandlerBase::GetStepToGo() const
+const FNStep& NStepsHandler::GetStepToGo() const
 {
 	return StepToGo;
 }
 
-void NStepsHandlerBase::FinishedCurrent()
+void NStepsHandler::FinishedCurrent()
 {
 	if (IsAlreadyDone(CurrentStep))
 	{
@@ -74,24 +74,24 @@ void NStepsHandlerBase::FinishedCurrent()
 	}
 	if (bDebug)
 	{
-		UE_LOG(LogBehaviorStepsC, Display, TEXT("Step %s has stopped"), *CurrentStep.ToString());
+		UE_LOG(LogBehaviorSteps, Display, TEXT("Step %s has stopped"), *CurrentStep.ToString());
 	}
 	CurrentStep.Reset();
 }
 
-bool NStepsHandlerBase::IsPlaying(const FNStep& Step) const
+bool NStepsHandler::IsPlaying(const FNStep& Step) const
 {
 	return Step == CurrentStep;
 }
 
-void NStepsHandlerBase::Redo(FNStep Step, bool FromFirstIteration)
+void NStepsHandler::Redo(const FNStep& Step, bool FromFirstIteration)
 {
 	const int32 Index = !FromFirstIteration ? FinishedSteps.FindLast(Step) : FinishedSteps.Find(Step);
 
 	if (Index < 0 && Step != CurrentStep)
 	{
 		UE_LOG(
-			LogBehaviorStepsC,
+			LogBehaviorSteps,
 			Error,
 			TEXT("The step %s has not been played already, use JumpTo() method instead."),
 			*Step.ToString()
@@ -115,12 +115,12 @@ void NStepsHandlerBase::Redo(FNStep Step, bool FromFirstIteration)
 	StepToGo = RealStep;
 }
 
-void NStepsHandlerBase::JumpTo(FNStep Step)
+void NStepsHandler::JumpTo(const FNStep& Step)
 {
 	StepToGo = Step;
 }
 
-bool NStepsHandlerBase::CanPlay(const FNStep& Step) const
+bool NStepsHandler::CanPlay(const FNStep& Step) const
 {
 	if (StepToGo == -1)
 	{
@@ -143,7 +143,7 @@ bool NStepsHandlerBase::CanPlay(const FNStep& Step) const
 	return bCanPlay;
 }
 
-bool NStepsHandlerBase::Play(const FNStep& Step)
+bool NStepsHandler::Play(const FNStep& Step)
 {
 	if (Step.Id == 0)
 	{
@@ -160,21 +160,21 @@ bool NStepsHandlerBase::Play(const FNStep& Step)
 		CurrentStep = Step;
 		if (bDebug)
 		{
-			UE_LOG(LogBehaviorStepsC, Display, TEXT("Step %s is playing"), *CurrentStep.ToString());
+			UE_LOG(LogBehaviorSteps, Display, TEXT("Step %s is playing"), *CurrentStep.ToString());
 		}
 		StepToGo.Reset();
 	}
 	return bCanPlay;
 }
 
-void NStepsHandlerBase::ConcludeAll()
+void NStepsHandler::ConcludeAll()
 {
 	CurrentStep.Reset();
 	StepToGo.Reset();
 	StepToGo = -1;
 }
 
-void NStepsHandlerBase::SetDebug(bool bInDebug)
+void NStepsHandler::SetDebug(bool bInDebug)
 {
 	bDebug = bInDebug;
 }

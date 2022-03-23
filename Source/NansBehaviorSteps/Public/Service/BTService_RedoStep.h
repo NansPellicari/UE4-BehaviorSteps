@@ -16,9 +16,6 @@ class NANSBEHAVIORSTEPS_API UBTService_RedoStep : public UBTService
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditInstanceOnly, Category = "Blackboard")
-	FName StepsKeyName = FName("Steps");
-
 	UPROPERTY(EditInstanceOnly, Category = "Step")
 	int32 StepToGo = 0;
 

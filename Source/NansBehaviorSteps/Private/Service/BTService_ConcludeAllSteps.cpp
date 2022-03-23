@@ -14,7 +14,8 @@
 #include "Service/BTService_ConcludeAllSteps.h"
 
 #include "BTStepsLibrary.h"
-#include "BehaviorTree/BehaviorTreeTypes.h"
+#include "StepsHandler.h"
+#include "BTStepsSubsystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "NansUE4Utilities/public/Misc/ErrorUtils.h"
 
@@ -35,19 +36,9 @@ UBTService_ConcludeAllSteps::UBTService_ConcludeAllSteps(const FObjectInitialize
 void UBTService_ConcludeAllSteps::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::OnBecomeRelevant(OwnerComp, NodeMemory);
-	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-	UBTStepsHandlerContainer* BTSteps = Cast<UBTStepsHandlerContainer>(BlackboardComp->GetValueAsObject(StepsKeyName));
-
-	if (BTSteps != nullptr)
-	{
-		UBTStepsLibrary::ConcludeAll(BTSteps);
-		return;
-	}
-
-	EDITOR_ERROR(
-		"BehaviorSteps",
-		LOCTEXT("StepsHandlerNotInitiated", "The steps handler can not be retrieved from the blackboard")
-	);
+	const TSharedPtr<NStepsHandler>& StepsHandler = UBTStepsLibrary::GetStepsSubsystem(OwnerComp)
+		->GetStepsHandler(OwnerComp.GetAIOwner());
+	StepsHandler->ConcludeAll();
 }
 
 #undef LOCTEXT_NAMESPACE
