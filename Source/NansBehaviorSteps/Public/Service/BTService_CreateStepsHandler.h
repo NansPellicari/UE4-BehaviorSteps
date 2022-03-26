@@ -21,12 +21,12 @@
 /**
  *
  */
-UCLASS(Deprecated)
-class NANSBEHAVIORSTEPS_API UDEPRECATED_UBTService_CreateStepsHandler : public UBTService
+UCLASS()
+class NANSBEHAVIORSTEPS_API UBTService_CreateStepsHandler : public UBTService
 {
 	GENERATED_BODY()
 
-	UDEPRECATED_UBTService_CreateStepsHandler(
+	UBTService_CreateStepsHandler(
 		const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	virtual void OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 };

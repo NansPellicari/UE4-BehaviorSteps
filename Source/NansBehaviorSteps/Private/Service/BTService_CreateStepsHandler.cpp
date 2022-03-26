@@ -14,12 +14,13 @@
 #include "Service/BTService_CreateStepsHandler.h"
 
 #include "AIController.h"
-#include "BehaviorTree/BlackboardComponent.h"
+#include "BTStepsLibrary.h"
+#include "BTStepsSubsystem.h"
 #include "NansUE4Utilities/public/Misc/ErrorUtils.h"
 
 #define LOCTEXT_NAMESPACE "BehaviorSteps"
 
-UDEPRECATED_UBTService_CreateStepsHandler::UDEPRECATED_UBTService_CreateStepsHandler(
+UBTService_CreateStepsHandler::UBTService_CreateStepsHandler(
 	const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -31,14 +32,10 @@ UDEPRECATED_UBTService_CreateStepsHandler::UDEPRECATED_UBTService_CreateStepsHan
 	bNotifyCeaseRelevant = false;
 }
 
-void UDEPRECATED_UBTService_CreateStepsHandler::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+void UBTService_CreateStepsHandler::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::OnBecomeRelevant(OwnerComp, NodeMemory);
-	EDITOR_WARN(
-		"BehaviorSteps",
-		LOCTEXT("DontNeedThisAnymore",
-			"You can removed this node UBTService_CreateStepsHandler, it is not more relevant")
-	);
+	UBTStepsLibrary::GetStepsSubsystem()->CreateStepsHandler(OwnerComp.GetAIOwner());
 }
 
 #undef LOCTEXT_NAMESPACE

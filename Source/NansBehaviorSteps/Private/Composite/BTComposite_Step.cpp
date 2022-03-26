@@ -108,13 +108,15 @@ int32 UBTComposite_Step::GetNextChildHandler(FBehaviorTreeSearchData& SearchData
 {
 	if (Step == 0)
 	{
-		EDITOR_ERROR("BehaviorSteps", LOCTEXT("InvalidStepNumber", "Invalid step number (need to be > 0) in "));
+		EDITOR_ERROR(
+			"BehaviorSteps",
+			FText::Format(LOCTEXT("InvalidStepNumber", "Invalid step number \"{0}\" (need to be > 0) in "), Step.Id)
+		);
 		return BTSpecialChild::ReturnToParent;
 	}
 
 	const AAIController* AIOwner = SearchData.OwnerComp.GetAIOwner();
-	const TSharedPtr<NStepsHandler>& BTSteps = UBTStepsLibrary::GetStepsSubsystem(SearchData.OwnerComp)->
-		GetStepsHandler(AIOwner);
+	const TSharedPtr<NStepsHandler>& BTSteps = UBTStepsLibrary::GetStepsSubsystem()->GetStepsHandler(AIOwner);
 	if (!BTSteps.IsValid())
 	{
 		EDITOR_WARN(

@@ -34,7 +34,7 @@ UBTService_EndStep::UBTService_EndStep(const FObjectInitializer& ObjectInitializ
 void UBTService_EndStep::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::OnBecomeRelevant(OwnerComp, NodeMemory);
-	const TSharedPtr<NStepsHandler>& StepsHandler = UBTStepsLibrary::GetStepsSubsystem(OwnerComp)
+	const TSharedPtr<NStepsHandler>& StepsHandler = UBTStepsLibrary::GetStepsSubsystem()
 		->GetStepsHandler(OwnerComp.GetAIOwner());
 	StepsHandler->FinishedCurrent();
 }

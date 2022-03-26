@@ -33,7 +33,7 @@ UBTService_RedoStep::UBTService_RedoStep(const FObjectInitializer& ObjectInitial
 
 void UBTService_RedoStep::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	const TSharedPtr<NStepsHandler>& StepsHandler = UBTStepsLibrary::GetStepsSubsystem(OwnerComp)
+	const TSharedPtr<NStepsHandler>& StepsHandler = UBTStepsLibrary::GetStepsSubsystem()
 		->GetStepsHandler(OwnerComp.GetAIOwner());
 
 	if (StepToGo == 0 && StepToGoLabel.IsNone())

@@ -23,7 +23,7 @@
 
 EBTNodeResult::Type UBTTask_JumpTo::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	const TSharedPtr<NStepsHandler>& StepsHandler = UBTStepsLibrary::GetStepsSubsystem(OwnerComp)
+	const TSharedPtr<NStepsHandler>& StepsHandler = UBTStepsLibrary::GetStepsSubsystem()
 		->GetStepsHandler(OwnerComp.GetAIOwner());
 
 	if (StepToGo == 0 && StepToGoLabel.IsNone())

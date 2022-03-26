@@ -35,7 +35,7 @@ void UBTService_ClearSteps::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, 
 	Super::OnBecomeRelevant(OwnerComp, NodeMemory);
 
 	const AAIController* AIOwner = OwnerComp.GetAIOwner();
-	UBTStepsLibrary::GetStepsSubsystem(OwnerComp)->RemoveStepsHandler(AIOwner);
+	UBTStepsLibrary::GetStepsSubsystem()->RemoveStepsHandler(AIOwner);
 }
 
 FString UBTService_ClearSteps::GetStaticDescription() const

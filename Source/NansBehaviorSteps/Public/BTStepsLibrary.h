@@ -29,5 +29,5 @@ class NANSBEHAVIORSTEPS_API UBTStepsLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 public:
-	static UBTStepsSubsystem* GetStepsSubsystem(const UBehaviorTreeComponent& OwnerComp);
+	static UBTStepsSubsystem* GetStepsSubsystem();
 };

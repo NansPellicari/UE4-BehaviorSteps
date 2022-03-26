@@ -12,22 +12,17 @@
 // limitations under the License.
 
 #include "NansBehaviorSteps/Public/BTStepsLibrary.h"
-#include "Misc/ErrorUtils.h"
-#include "AIController.h"
-
 #include "BTStepsSubsystem.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
+#include "Misc/ErrorUtils.h"
 
 #define LOCTEXT_NAMESPACE "BehaviorSteps"
 
-UBTStepsSubsystem* UBTStepsLibrary::GetStepsSubsystem(const UBehaviorTreeComponent& OwnerComp)
+UBTStepsSubsystem* UBTStepsLibrary::GetStepsSubsystem()
 {
-	const AAIController* AIOwner = OwnerComp.GetAIOwner();
-	check(IsValid(AIOwner))
-	const UWorld* World = GEngine->GetWorldFromContextObject(AIOwner, EGetWorldErrorMode::LogAndReturnNull);
-	check(IsValid(World))
-	const UGameInstance* GI = World->GetGameInstance();
-	UBTStepsSubsystem* MySubsystem = GI->GetSubsystem<UBTStepsSubsystem>();
+	ULocalPlayer* LocalPlayer = GEngine->FindFirstLocalPlayerFromControllerId(0);
+	check(LocalPlayer);
+	UBTStepsSubsystem* MySubsystem = LocalPlayer->GetSubsystem<UBTStepsSubsystem>();
 	check(IsValid(MySubsystem));
 	return MySubsystem;
 }

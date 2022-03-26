@@ -24,7 +24,7 @@ class NStepsHandler;
  * 
  */
 UCLASS()
-class NANSBEHAVIORSTEPS_API UBTStepsSubsystem : public UGameInstanceSubsystem
+class NANSBEHAVIORSTEPS_API UBTStepsSubsystem : public ULocalPlayerSubsystem
 {
 	GENERATED_BODY()
 public:
@@ -33,8 +33,8 @@ public:
 	virtual void Deinitialize() override;
 	// End USubsystem
 
-	const TSharedPtr<NStepsHandler>& CreateStepsHandler(const AAIController* Owner);
-	const TSharedPtr<NStepsHandler>& GetStepsHandler(const AAIController* Owner);
+	TSharedPtr<NStepsHandler> CreateStepsHandler(const AAIController* Owner);
+	TSharedPtr<NStepsHandler> GetStepsHandler(const AAIController* Owner) const;
 	void RemoveStepsHandler(const AAIController* Owner);
 private:
 	TMap<const FString, TSharedPtr<NStepsHandler>> StepsHandlers;

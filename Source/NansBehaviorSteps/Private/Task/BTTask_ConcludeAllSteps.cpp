@@ -24,7 +24,7 @@
 
 EBTNodeResult::Type UBTTask_ConcludeAllSteps::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	const TSharedPtr<NStepsHandler>& StepsHandler = UBTStepsLibrary::GetStepsSubsystem(OwnerComp)
+	const TSharedPtr<NStepsHandler>& StepsHandler = UBTStepsLibrary::GetStepsSubsystem()
 		->GetStepsHandler(OwnerComp.GetAIOwner());
 
 	if (StepsHandler.IsValid())

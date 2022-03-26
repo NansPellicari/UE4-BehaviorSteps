@@ -33,7 +33,7 @@ UBTService_JumpTo::UBTService_JumpTo(const FObjectInitializer& ObjectInitializer
 
 void UBTService_JumpTo::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	const TSharedPtr<NStepsHandler>& StepsHandler = UBTStepsLibrary::GetStepsSubsystem(OwnerComp)
+	const TSharedPtr<NStepsHandler>& StepsHandler = UBTStepsLibrary::GetStepsSubsystem()
 		->GetStepsHandler(OwnerComp.GetAIOwner());
 
 	if (StepToGo == 0 && StepToGoLabel.IsNone())

@@ -29,31 +29,34 @@ void UBTStepsSubsystem::Deinitialize()
 	StepsHandlers.Empty();
 }
 
-const TSharedPtr<NStepsHandler>& UBTStepsSubsystem::CreateStepsHandler(const AAIController* Owner)
+TSharedPtr<NStepsHandler> UBTStepsSubsystem::CreateStepsHandler(const AAIController* Owner)
 {
 	const AActor* Pawn = Owner->GetPawn<AActor>();
 	check(IsValid(Pawn));
 	return StepsHandlers.FindOrAdd(Pawn->GetPathName(), MakeShared<NStepsHandler>());
 }
 
-const TSharedPtr<NStepsHandler>& UBTStepsSubsystem::GetStepsHandler(const AAIController* Owner)
+TSharedPtr<NStepsHandler> UBTStepsSubsystem::GetStepsHandler(const AAIController* Owner) const
 {
 	const AActor* Pawn = Owner->GetPawn<AActor>();
 	check(IsValid(Pawn));
 	const FString Name = Pawn->GetPathName();
-	const TSharedPtr<NStepsHandler>& StepHandler = StepsHandlers.FindRef(Name);
-	if (!StepHandler.IsValid())
+	if (StepsHandlers.Contains(Name))
 	{
-		return CreateStepsHandler(Owner);
+		return *StepsHandlers.Find(Name);
 	}
-	return StepHandler;
+
+	return nullptr;
 }
 
 void UBTStepsSubsystem::RemoveStepsHandler(const AAIController* Owner)
 {
 	const AActor* Pawn = Owner->GetPawn<AActor>();
 	check(IsValid(Pawn));
-	StepsHandlers.FindAndRemoveChecked(Pawn->GetPathName());
+	if (StepsHandlers.Find(Pawn->GetPathName()) != nullptr)
+	{
+		StepsHandlers.Remove(Pawn->GetPathName());
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

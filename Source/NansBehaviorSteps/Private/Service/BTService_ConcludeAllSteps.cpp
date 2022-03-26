@@ -36,7 +36,7 @@ UBTService_ConcludeAllSteps::UBTService_ConcludeAllSteps(const FObjectInitialize
 void UBTService_ConcludeAllSteps::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::OnBecomeRelevant(OwnerComp, NodeMemory);
-	const TSharedPtr<NStepsHandler>& StepsHandler = UBTStepsLibrary::GetStepsSubsystem(OwnerComp)
+	const TSharedPtr<NStepsHandler>& StepsHandler = UBTStepsLibrary::GetStepsSubsystem()
 		->GetStepsHandler(OwnerComp.GetAIOwner());
 	StepsHandler->ConcludeAll();
 }
